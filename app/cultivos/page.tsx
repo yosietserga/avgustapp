@@ -21,8 +21,8 @@ export default function CropList() {
 
  useEffect(() => {
     async function fetchCrops() {
-      const fetchedCrops = await getCrops()
-      setCrops(fetchedCrops)
+      //const fetchedCrops = await getCrops()
+      //setCrops(fetchedCrops)
     }
     fetchCrops()
   }, [])

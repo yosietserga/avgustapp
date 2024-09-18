@@ -3,7 +3,7 @@ import CropManagementPage from '@/components/CropManagementPage'
 import { getCropData } from '@/lib/api'
 
 export default async function CropPage({ params }: { params: { crop: string } }) {
-  const cropData = await getCropData(params.crop)
+  const cropData = await getCropData(parseFloat(params.crop))
 
   if (!cropData) {
     notFound()

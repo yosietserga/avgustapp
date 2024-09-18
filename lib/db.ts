@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
    import { sql } from '@vercel/postgres';
 
    export async function query(text: string, params: any[] = []) {
