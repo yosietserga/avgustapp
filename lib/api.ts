@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import prisma from './prisma'
+import { query } from './db';
+
 // Mock data for crops
 const crops = [
   { id: 1, name: 'ARROZ', image: '/crops/rice.jpg' },
@@ -52,32 +55,43 @@ const cropDetails: { [key: number]: CropDetail } = {
   // Add details for other crops
 };
 
+
 export async function getCrops() {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return crops;
+  try {
+    const crops = await prisma.crop.findMany()
+    return crops
+  } catch (error) {
+    console.error('Error fetching crops:', error)
+    throw new Error('Failed to fetch crops')
+  }
 }
 
 export async function getCropData(id: number) {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return cropDetails[id] || null;
+  try {
+    const crop = await prisma.crop.findUnique({
+      where: { id },
+    })
+    return crop
+  } catch (error) {
+    console.error('Error fetching crop data:', error)
+    throw new Error('Failed to fetch crop data')
+  }
 }
 
-export async function createCrop(cropData: { name: string, image: File }) {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // In a real application, you would upload the image and create the crop in your backend
-  const newCrop = {
-    id: crops.length + 1,
-    name: cropData.name,
-    image: URL.createObjectURL(cropData.image),
-  };
-
-  crops.push(newCrop);
-  return newCrop;
+export async function createCrop(cropData: { name: string; image?: string; description?: string }) {
+  try {
+    const crop = await prisma.crop.create({
+      data: cropData,
+    })
+    return crop
+  } catch (error) {
+    console.error('Error creating crop:', error)
+    throw new Error('Failed to create crop')
+  }
 }
+
+// Add more functions as needed
+
 
 export async function updateCrop(id: number, cropData: { name: string, image?: File }) {
   // Simulate API call delay

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from 'next/link'
@@ -18,6 +18,14 @@ export default function CropList() {
     { id: 2, name: 'TOMATE' },
     { id: 3, name: 'MAÍZ' },
   ])
+
+ useEffect(() => {
+    async function fetchCrops() {
+      const fetchedCrops = await getCrops()
+      setCrops(fetchedCrops)
+    }
+    fetchCrops()
+  }, [])
 
   const handleDelete = (id: number) => {
     setCrops(crops.filter(crop => crop.id !== id))
@@ -39,7 +47,7 @@ export default function CropList() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Mis cultivos</h1>
-          <Link href="/crop-management">
+          <Link href="/admincultivos">
             <Button className="bg-[#00bcd4] hover:bg-[#00acc1] text-white">
               + Crear cultivo
             </Button>

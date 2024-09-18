@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import CropManagementPlan from "@/components/CropManagementPlan"
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -78,6 +79,7 @@ export default function Home() {
         </section>
 
         <section className="py-16 bg-white">
+          <CropManagementPlan />
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8 text-center text-green-800">
               Plan De Manejo Del Cultivo De Arroz

@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import StageFormModal from "@/components/form/stage-modal"
+import ProductFormModal from "@/components/form/product-modal"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -141,29 +143,7 @@ export default function CropManagement() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <header className="bg-[#374151] text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <img src="/placeholder.svg?height=32&width=32" alt="Avgust Logo" className="h-8 w-8" />
-            <span className="font-bold text-xl">Avgust</span>
-          </div>
-          <nav className="hidden md:flex space-x-4">
-            <a href="#" className="hover:text-gray-300">Productos</a>
-            <a href="#" className="hover:text-gray-300">Cultivos</a>
-            <a href="#" className="hover:text-gray-300">Nosotros</a>
-            <a href="#" className="hover:text-gray-300">Noticias</a>
-            <a href="#" className="hover:text-gray-300">Contacto</a>
-          </nav>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">ES</Button>
-            <Button variant="ghost" size="icon">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </Button>
-          </div>
-        </div>
-      </header>
+
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Cultivo de Arroz</h1>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -374,54 +354,14 @@ export default function CropManagement() {
                   </tbody>
                 </table>
 
-                  {/**
-                <div className="mt-8 overflow-x-auto">
-                  <div className="min-w-full divide-y divide-gray-200">
-                    <div className="bg-gray-50 grid grid-cols-[auto,repeat(8,1fr)]">
-                      <div className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Segmento
-                      </div>
-                      {stages.map((stage) => (
-                        <div key={stage.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {stage.name}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-white divide-y divide-gray-200">
-                      {segments.map((segment) => (
-                        <div key={segment.id} className="grid grid-cols-[auto,repeat(8,1fr)]">
-                          <div className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {segment.name}
-                          </div>
-                          {stages.map((stage, stageIndex) => (
-                            <div key={stage.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {products
-                                .filter(
-                                  (product) =>
-                                    product.start <= stageIndex &&
-                                    product.end >= stageIndex
-                                )
-                                .map((product) => (
-                                  <div key={product.id} className="bg-[#D1FAE5] p-2 rounded mb-1">
-                                    <p className="font-semibold">{product.name}</p>
-                                    <p className="text-xs">{product.description}</p>
-                                  </div>
-                                ))}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                */}
-
-
               </div>
             </TabsContent>
           ))}
         </Tabs>
+      <ProductFormModal />
       </main>
+      <StageFormModal isOpen={false} onClose={() => {}} onSubmit={() => {}} />
+      <ProductFormModal />
       <Dialog open={isNewObjectiveModalOpen} onOpenChange={setIsNewObjectiveModalOpen}>
         <DialogContent>
           <DialogHeader>
