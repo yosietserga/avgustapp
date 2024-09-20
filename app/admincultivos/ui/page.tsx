@@ -360,7 +360,7 @@ export default function CropManagement() {
         </Tabs>
       <ProductFormModal />
       </main>
-      <StageFormModal isOpen={true} onClose={() => {}} onSubmit={() => {}} />
+      <StageFormModal isOpen={false} onClose={() => {}} onSubmit={() => {}} />
       <ProductFormModal />
       <Dialog open={isNewObjectiveModalOpen} onOpenChange={setIsNewObjectiveModalOpen}>
         <DialogContent>

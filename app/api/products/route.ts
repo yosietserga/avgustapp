@@ -1,45 +1,49 @@
-// app/api/products/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
+
+const prisma = new PrismaClient();
+
+const ProductSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  segmentId: z.number().int().positive().optional(),
+  stageId: z.number().int().positive().optional(),
+  startPercent: z.number().min(0).max(100).optional(),
+  endPercent: z.number().min(0).max(100).optional(),
+});
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const page = Number(searchParams.get('page')) || 1;
-  const limit = Number(searchParams.get('limit')) || 10;
-  const tipo = searchParams.get('tipo');
-
-  const skip = (page - 1) * limit;
-  const where = tipo ? { tipo: tipo as string } : {};
+  const segmentId = searchParams.get('segmentId');
+  const stageId = searchParams.get('stageId');
 
   try {
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { fecha_creacion: 'desc' },
-      }),
-      prisma.product.count({ where }),
-    ]);
-
-    return NextResponse.json({
-      products,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
+    const products = await prisma.product.findMany({
+      where: {
+        ...(segmentId && { segmentId: Number(segmentId) }),
+        ...(stageId && { stageId: Number(stageId) }),
+      },
     });
+    return NextResponse.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: "Error fetching products" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-    const product = await prisma.product.create({ data });
-    return NextResponse.json(product, { status: 201 });
+    const body = await request.json();
+    const validatedData = ProductSchema.parse(body);
+    const newProduct = await prisma.product.create({ data: validatedData });
+    return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ message: "Invalid input", errors: error.errors }, { status: 400 });
+    }
     console.error('Error creating product:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: "Error creating product" }, { status: 500 });
   }
 }

@@ -1,98 +1,110 @@
-// components/StagesCRUD.tsx
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Stage {
-  id: string;
+  id: number;
   name: string;
+  order: number;
+  objectiveId: number;
 }
 
-export function StagesCRUD() {
-  const [stages, setStages] = useState<Stage[]>([]);
+interface StagesCRUDProps {
+  results: Stage[];
+  objectiveId: number;
+  onSubmit: (action: 'add' | 'edit' | 'delete', stage: Partial<Stage>) => void;
+  onCancel: () => void;
+}
+
+const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newStageName, setNewStageName] = useState('');
+  const [newStageOrder, setNewStageOrder] = useState('');
+  const [editingStage, setEditingStage] = useState<Stage | null>(null);
 
-  useEffect(() => {
-    fetchStages();
-  }, []);
-
-  const fetchStages = async () => {
-    const response = await fetch('/api/stages');
-    const data = await response.json();
-    setStages(data);
-  };
-
-  const handleAddStage = async () => {
-    if (newStageName) {
-      const response = await fetch('/api/stages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newStageName }),
-      });
-      if (response.ok) {
-        fetchStages();
-        setNewStageName('');
-      }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingStage) {
+      onSubmit('edit', { id: editingStage.id, name: newStageName, order: parseInt(newStageOrder), objectiveId });
+    } else {
+      onSubmit('add', { name: newStageName, order: parseInt(newStageOrder) });
     }
-  };
-
-  const handleEditStage = async (id: string, newName: string) => {
-    const response = await fetch(`/api/stages/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName }),
-    });
-    if (response.ok) {
-      fetchStages();
-    }
-  };
-
-  const handleDeleteStage = async (id: string) => {
-    const response = await fetch(`/api/stages/${id}`, { method: 'DELETE' });
-    if (response.ok) {
-      fetchStages();
-    }
+    setNewStageName('');
+    setNewStageOrder('');
+    setEditingStage(null);
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
-        Etapas Fenológicas
-        <Button variant="outline" size="sm" onClick={handleAddStage} className="text-[#10B981] border-[#10B981]">
-          + Crear etapa
-        </Button>
-      </h2>
-      <div className="space-y-2">
-        {stages.map((stage) => (
-          <div key={stage.id} className="flex items-center justify-between bg-gray-100 p-2 rounded">
-            <span>{stage.name}</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => {
-                  const newName = prompt('Enter new name', stage.name);
-                  if (newName) handleEditStage(stage.id, newName);
-                }}>Editar</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDeleteStage(stage.id)}>Eliminar</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+    <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Stages</h2>
+      <form onSubmit={handleSubmit} className="mb-6 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <input
+            type="text"
+            value={newStageName}
+            onChange={(e) => setNewStageName(e.target.value)}
+            placeholder="Stage name"
+            required
+            className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="number"
+            value={newStageOrder}
+            onChange={(e) => setNewStageOrder(e.target.value)}
+            placeholder="Order"
+            required
+            className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button 
+          type="submit"
+          className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
+        >
+          {editingStage ? 'Update' : 'Add'} Stage
+        </button>
+        {editingStage && (
+          <button 
+            type="button" 
+            onClick={() => setEditingStage(null)}
+            className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
+          >
+            Cancel Edit
+          </button>
+        )}
+      </form>
+      <ul className="space-y-4">
+        {Array.isArray(results) && results.map((stage) => (
+          <li key={stage.id} className="flex items-center justify-between bg-gray-50 p-4 rounded-md">
+            <div>
+              <span className="text-gray-800 font-medium">{stage.name}</span>
+              <span className="ml-2 text-sm text-gray-500">Order: {stage.order}</span>
+            </div>
+            <div className="space-x-2">
+              <button 
+                onClick={() => {
+                  setEditingStage(stage);
+                  setNewStageName(stage.name);
+                  setNewStageOrder(stage.order.toString());
+                }}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                Edit
+              </button>
+              <button 
+                onClick={() => onSubmit('delete', { id: stage.id })}
+                className="text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
         ))}
-      </div>
-      <div className="mt-4">
-        <Input
-          value={newStageName}
-          onChange={(e) => setNewStageName(e.target.value)}
-          placeholder="Escriba la nueva etapa"
-          className="w-full"
-        />
-      </div>
+      </ul>
+      <button 
+        onClick={onCancel}
+        className="mt-6 w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out"
+      >
+        Cancel
+      </button>
     </div>
   );
-}
+};
+
+export default StagesCRUD;

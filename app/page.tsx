@@ -80,68 +80,6 @@ export default function Home() {
 
         <section className="py-16 bg-white">
           <CropManagementPlan />
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-8 text-center text-green-800">
-              Plan De Manejo Del Cultivo De Arroz
-            </h2>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="w-full justify-start mb-8 border-b border-gray-200">
-                {['Manejo de malezas', 'Manejo de plagas', 'Manejo de enfermedades', 'Bioestimulación', 'Cosecha'].map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab.toLowerCase().replace(/ /g, '-')}
-                    className="px-4 py-2 text-gray-600 hover:text-green-600 focus:outline-none"
-                  >
-                    {tab}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {['manejo-de-malezas', 'manejo-de-plagas', 'manejo-de-enfermedades', 'bioestimulacion', 'cosecha'].map((tabValue) => (
-                <TabsContent key={tabValue} value={tabValue}>
-                  <div className="mb-8">
-                    <div className="flex justify-between mb-4">
-                      {timelineStages.map((stage, index) => (
-                        <div key={index} className="flex flex-col items-center">
-                          <div className="text-2xl mb-2">{stage.icon}</div>
-                          <div className="text-sm text-gray-600">{stage.name}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full mb-8">
-                      <div className="h-full bg-green-500 rounded-full" style={{ width: '60%' }}></div>
-                    </div>
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr>
-                          <th className="border p-2 bg-gray-100">Fase</th>
-                          {timelineStages.map((stage, index) => (
-                            <th key={index} className="border p-2 bg-gray-100">{stage.name}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {phases.map((phase, index) => (
-                          <tr key={index}>
-                            <td className="border p-2 font-semibold">{phase}</td>
-                            {timelineStages.map((_, stageIndex) => (
-                              <td key={stageIndex} className="border p-2">
-                                {index === 2 && stageIndex === 3 && (
-                                  <div className="bg-green-100 p-1 rounded">
-                                    ROJO 180 EC<br />
-                                    (Cyhalofop-butyl 180 g/L)
-                                  </div>
-                                )}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
         </section>
       </main>
     </div>

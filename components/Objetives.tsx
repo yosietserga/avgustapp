@@ -1,39 +1,37 @@
-// components/Objectives.tsx
+// components/Objetives.tsx
 import React from 'react';
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
+import { Plus, Edit, Trash } from 'lucide-react';
 
 interface Objective {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
+  id: number;
+  name: string;
 }
 
-interface ObjectivesProps {
+interface ObjectivesCRUDProps {
   objectives: Objective[];
-  activeTab: string;
-  setActiveTab: (value: string) => void;
-  setIsNewObjectiveModalOpen: (value: boolean) => void;
+  onSubmit: (action: 'add' | 'edit' | 'delete', objective: Partial<Objective>) => void;
 }
 
-export function Objectives({ objectives, activeTab, setActiveTab, setIsNewObjectiveModalOpen }: ObjectivesProps) {
+const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit }) => {
   return (
-    <div className="flex justify-between items-center">
-      <TabsList className="bg-white p-1 rounded-md">
-        {objectives.map((objective) => (
-          <TabsTrigger
-            key={objective.id}
-            value={objective.id}
-            className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
-          >
-            {objective.icon}
-            <span>{objective.title}</span>
-          </TabsTrigger>
-        ))}
-      </TabsList>
-      <Button onClick={() => setIsNewObjectiveModalOpen(true)} variant="outline" className="bg-[#10B981] text-white hover:bg-[#059669]">
-        + Crear objetivo
+    <div className="flex items-center space-x-2">
+      {objectives.map((objective) => (
+        <div key={objective.id} className="flex items-center">
+          <span className="mr-2">{objective.name}</span>
+          <Button variant="ghost" size="sm" onClick={() => onSubmit('edit', objective)}>
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => onSubmit('delete', objective)}>
+            <Trash className="h-4 w-4" />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" onClick={() => onSubmit('add', { name: 'New Objective' })}>
+        <Plus className="mr-2 h-4 w-4" /> Add Objective
       </Button>
     </div>
   );
-}
+};
+
+export default ObjectivesCRUD;
