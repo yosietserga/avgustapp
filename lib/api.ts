@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import prisma from './prisma'
-import { query } from './db';
 
 // Mock data for crops
 const crops = [
