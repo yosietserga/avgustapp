@@ -129,7 +129,7 @@ export async function submitEmail(email: string) {
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // In a real application, you would send this email to your backend or email service
+  // todo: send email to webmaster 
   console.log(`Email submitted: ${email}`);
   return { success: true, message: `Email ${email} submitted successfully!` };
 }

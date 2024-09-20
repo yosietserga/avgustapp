@@ -75,6 +75,7 @@ model Crop {
 model Country {
   id              Int      @id @default(autoincrement())
   nombre          String   @db.VarChar(255)
+  code            String   @db.VarChar(5)
   crops           Crop[]
   productsCropsRelations ProductsCropsRelation[]
 }
