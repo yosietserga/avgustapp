@@ -25,6 +25,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             },
           },
         },
+        segments: {
+          include: {
+            products: true,
+          },
+        },
         stages: {
           include: {
             productsStart: true,

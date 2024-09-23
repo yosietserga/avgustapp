@@ -56,7 +56,8 @@ interface Crop {
   stages: Stage[];
 }
 
-export default function CropManagement({ cropId }: { cropId?: number }) {
+export default function CropManagement(props) {
+    const { id } = props.params
   /*
   const [objectives, setObjectives] = useState<Objective[]>(initialObjectives);
   const [activeTab, setActiveTab] = useState(objectives[0].id);
@@ -66,22 +67,21 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
   const [crop, setCrop] = useState<Crop | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCropForm, setShowCropForm] = useState(!cropId);
+  const [showCropForm, setShowCropForm] = useState(!id);
   const [_cropId, setCropId] = useState(null);
   const [activeObjectiveId, setActiveObjectiveId] = useState<number | null>(null);
 
 
-  console.log({_cropId})
   useEffect(() => {
-    if (cropId) {
+    if (id) {
       fetchCrop();
     }
-  }, [cropId]);
+  }, [id]);
 
   const fetchCrop = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/crops/${cropId}`);
+      const response = await axios.get(`/api/crops/${id}`);
       setCrop(response.data);
       setCropId(response.data.id);
       if (response.data.objectives.length > 0) {

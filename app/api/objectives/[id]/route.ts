@@ -36,10 +36,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   const id = Number(params.id);
   try {
     const body = await request.json();
-    const validatedData = ObjectiveSchema.parse(body);
+    const validatedData = ObjectiveSchema.parse({
+      ...body, 
+      description: typeof body.description == "string" ? body.description : "", 
+      icon:typeof body.icon == "string" ? body.icon : ""
+    });
+     // Destructure to ensure all fields are included
+    const { cropId, name, description, icon } = validatedData;
     const updatedObjective = await prisma.objective.update({
       where: { id },
-      data: validatedData,
+      data: {
+        cropId,
+        name,
+        description:description??"",
+        icon:icon??""
+      },
     });
     return NextResponse.json(updatedObjective);
   } catch (error) {

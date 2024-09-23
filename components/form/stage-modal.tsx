@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { AlertCircle, Upload } from 'lucide-react'
 
@@ -13,6 +14,7 @@ interface StageFormModalProps {
 
 export default function StageFormModal({ isOpen, onClose, onSubmit }: StageFormModalProps) {
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [errors, setErrors] = useState<{ title?: string, image?: string }>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -83,12 +85,16 @@ export default function StageFormModal({ isOpen, onClose, onSubmit }: StageFormM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Abrir Formulario</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Crear Etapa</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          
+            <div>
             <Label htmlFor="title">Título:</Label>
             <Input
               id="title"
@@ -103,6 +109,7 @@ export default function StageFormModal({ isOpen, onClose, onSubmit }: StageFormM
               </p>
             )}
           </div>
+
           <div>
             <Label>Agregar imagen:</Label>
             <div
@@ -140,6 +147,7 @@ export default function StageFormModal({ isOpen, onClose, onSubmit }: StageFormM
               </p>
             )}
           </div>
+            
           <Button type="submit" className="w-full bg-[#8bc34a] hover:bg-[#7cb342] text-white">
             Crear Etapa
           </Button>

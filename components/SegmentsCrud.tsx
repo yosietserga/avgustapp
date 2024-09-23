@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button"
+import FormModal from "@/components/form/modal"
+import ConfirmationModal from "@/components/form/confirm-modal"
+import { Plus, Edit, Trash } from 'lucide-react';
 
 interface Segment {
   id: number;
@@ -13,16 +17,24 @@ interface SegmentsCRUDProps {
   onCancel: () => void;
 }
 
+type FormData = {
+  name: string;
+  icon?: string;
+  description?: string;
+  objectiveId?: number;
+};
+
 const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newSegmentName, setNewSegmentName] = useState('');
   const [editingSegment, setEditingSegment] = useState<Segment | null>(null);
+  const [showModal, setShowCofirmModal] = React.useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (data: FormData) :void => {
+    
     if (editingSegment) {
-      onSubmit('edit', { id: editingSegment.id, name: newSegmentName });
+      onSubmit('edit', { id: editingSegment.id, name: data.name });
     } else {
-      onSubmit('add', { name: newSegmentName, objectiveId });
+      onSubmit('add', { name: data.name, objectiveId });
     }
     setNewSegmentName('');
     setEditingSegment(null);
@@ -31,7 +43,19 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
   return (
     <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Segments</h2>
-      <form onSubmit={handleSubmit} className="mb-6">
+      
+      <FormModal 
+        title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
+        onClose={() => {}} 
+        onSubmit={handleSubmit} 
+        fields={{description:false, icon:false}} 
+        triggerButton={
+            <Button variant="default" size="sm">
+              <Plus className="h-4 w-4 mr-2" /> Agregar
+            </Button>
+          }
+      />
+      <form className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
@@ -63,6 +87,18 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
           <li key={segment.id} className="flex items-center justify-between bg-gray-50 p-4 rounded-md">
             <span className="text-gray-800">{segment.name}</span>
             <div className="space-x-2">
+              
+              <FormModal 
+                title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
+                onClose={() => {}} 
+                onSubmit={handleSubmit} 
+                fields={{description:false, icon:false}} 
+                triggerButton={
+                    <Button variant="secondary" size="sm">
+                      <Edit className="h-4 w-4 mr-2" /> Editar
+                    </Button>
+                  }
+              />
               <button 
                 onClick={() => {
                   setEditingSegment(segment);
@@ -72,12 +108,15 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
               >
                 Edit
               </button>
-              <button 
-                onClick={() => onSubmit('delete', { id: segment.id })}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
+              
+              <ConfirmationModal 
+                isOpen={showModal} 
+                onClose={() => setShowCofirmModal(false)} 
+                onConfirm={() => onSubmit('delete', { id: segment.id })} 
+              />
+              <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
+                <Trash className="h-4 w-4 mr-2" /> Delete
+              </Button>
             </div>
           </li>
         ))}
