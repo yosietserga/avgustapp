@@ -117,6 +117,12 @@ export default function CropList() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>
+                          <Link href={`/cultivos/${crop.id}`} className="flex items-center">
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Ver</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
                           <Link href={`/admincultivos/${crop.id}`} className="flex items-center">
                             <Edit className="mr-2 h-4 w-4" />
                             <span>Editar</span>
