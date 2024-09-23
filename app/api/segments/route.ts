@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const SegmentSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
+  cropId: z.number().int().positive(),
   objectiveId: z.number().int().positive(),
 });
 
@@ -32,7 +33,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = SegmentSchema.parse(body);
-    const newSegment = await prisma.segment.create({ data: validatedData });
+    const { objectiveId, cropId, name, ...segmentData } = validatedData;
+
+    const newSegment = await prisma.segment.create({
+      data: {
+        ...segmentData,
+        name,
+        crop: { connect: { id: cropId } },
+        objective: { connect: { id: objectiveId } },
+      },
+    });
     return NextResponse.json(newSegment, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -21,7 +21,8 @@ export async function GET(
         }
       },
       include: {
-        products: true,
+        productsStart: true,
+        productsEnd: true,
         crop: true,
       },
       orderBy: {

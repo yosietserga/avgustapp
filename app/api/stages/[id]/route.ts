@@ -17,7 +17,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const stage = await prisma.stage.findUnique({
       where: { id },
       include: {
-        products: true,
+        productsStart: true,
+        productsEnd: true,
       },
     });
     if (!stage) return NextResponse.json({ message: "Stage not found" }, { status: 404 });

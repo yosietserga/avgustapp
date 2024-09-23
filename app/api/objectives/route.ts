@@ -37,7 +37,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = ObjectiveSchema.parse(body);
-    const newObjective = await prisma.objective.create({ data: validatedData });
+    const { cropId, name, description, icon } = validatedData; // Destructure to ensure all fields are included
+
+    const newObjective = await prisma.objective.create({
+      data: {
+        name,
+        description,
+        icon,
+        crop: { connect: { id: cropId } } // Use connect to establish the relation
+      }
+    });
     return NextResponse.json(newObjective, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

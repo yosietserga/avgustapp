@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "node scripts/run-migrations.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -25,6 +24,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "file-type": "^19.5.0",
+    "formidable": "^3.5.1",
     "framer-motion": "^11.5.4",
     "lucide-react": "^0.441.0",
     "next": "14.2.11",

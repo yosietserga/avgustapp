@@ -28,7 +28,7 @@ model Crop {
   name        String
   description String?
   image       String?
-  country_id  Int
+  country_id  Int?
   country     Country? @relation(fields: [country_id], references: [id])
   objectives  Objective[]
   stages      Stage[]
@@ -74,7 +74,8 @@ model Stage {
   crop        Crop      @relation(fields: [cropId], references: [id])
   objectiveId Int
   objective   Objective @relation(fields: [objectiveId], references: [id])
-  products    Product[]
+  productsStart  Product[] @relation("StageProductStart")
+  productsEnd    Product[] @relation("StageProductEnd")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -85,15 +86,17 @@ model Product {
   description String?
   image       String?
   productType ProductType
-  cropId      Int
-  crop        Crop      @relation(fields: [cropId], references: [id])
+  cropId      Int?
+  crop        Crop?      @relation(fields: [cropId], references: [id])
   segmentId   Int?
   segment     Segment? @relation(fields: [segmentId], references: [id])
-  stageId     Int?
-  stage       Stage?   @relation(fields: [stageId], references: [id])
   objectiveId Int
   objective   Objective @relation(fields: [objectiveId], references: [id])
+  startStageId Int?
+  startStage  Stage?   @relation("StageProductStart", fields: [startStageId], references: [id])
   startPercent Float?
+  endStageId  Int?
+  endStage    Stage?   @relation("StageProductEnd", fields: [endStageId], references: [id])
   endPercent  Float?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

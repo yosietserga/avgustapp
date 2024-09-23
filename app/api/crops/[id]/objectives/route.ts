@@ -18,6 +18,8 @@ export async function GET(
       where: { cropId: cropId },
       include: {
         segments: true,
+        stages: true,
+        products: true,
       },
     });
 

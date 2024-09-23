@@ -16,7 +16,7 @@ interface StagesCRUDProps {
 
 const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newStageName, setNewStageName] = useState('');
-  const [newStageOrder, setNewStageOrder] = useState('');
+  const [newStageOrder, setNewStageOrder] = useState('1');
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -17,6 +17,7 @@ interface Product {
   id: number;
   name: string;
   description?: string;
+  productType: 'insecticida' | 'fungicida' | 'herbicida' | 'nutricion' | 'feromonas' | 'otros_insumos';
   startPercent?: number;
   endPercent?: number;
   stageId?: number;
@@ -35,6 +36,7 @@ interface Objective {
   name: string;
   icon: React.ReactNode;
   segments: Segment[];
+  stages: Stage[];
 }
 
 interface Stage {
@@ -42,13 +44,15 @@ interface Stage {
   name: string;
   order: number;
   objectiveId: number;
-  products: Product[];
+  endProducts: Product[];
+  startProducts: Product[];
 }
 
 interface Crop {
   id: number;
   name: string;
   objectives: Objective[];
+  segments: Segment[];
   stages: Stage[];
 }
 
@@ -153,33 +157,18 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${_cropId}/segments`, {objectiveId:activeObjectiveId, ...segment});
-        updatedCrop = {
-          ...crop!,
-          objectives: crop!.objectives.map(obj =>
-            obj.id === activeObjectiveId
-              ? { ...obj, segments: [...obj.segments, response.data] }
-              : obj
-          )
-        };
+        updatedCrop = { ...crop!, segments: [...crop!.segments, {...response.data, products:[]} ] };
       } else if (action === 'edit') {
         await axios.put(`/api/segments/${segment.id}`, segment);
         updatedCrop = {
           ...crop!,
-          objectives: crop!.objectives.map(obj => ({
-            ...obj,
-            segments: obj.segments.map(seg =>
-              seg.id === segment.id ? { ...seg, ...segment } : seg
-            )
-          }))
+          segments: crop!.segments.map(s => s.id === segment.id ? { ...s, ...segment } : s)
         };
       } else if (action === 'delete') {
         await axios.delete(`/api/segments/${segment.id}`);
         updatedCrop = {
           ...crop!,
-          objectives: crop!.objectives.map(obj => ({
-            ...obj,
-            segments: obj.segments.filter(seg => seg.id !== segment.id)
-          }))
+          segments: crop!.segments.filter(s => s.id !== segment.id)
         };
       }
       setCrop(updatedCrop!);
@@ -193,20 +182,21 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
     try {
       let updatedCrop;
       if (action === 'add') {
-        const response = await axios.post(`/api/crops/${crop?.id}/products`, product);
+        const response = await axios.post(`/api/products`, {...product, cropId:_cropId});
         updatedCrop = {
           ...crop!,
-          objectives: crop!.objectives.map(obj => ({
-            ...obj,
-            segments: obj.segments.map(seg =>
-              seg.id === product.segmentId
-                ? { ...seg, products: [...seg.products, response.data] }
-                : seg
-            )
-          })),
+          segments: crop!.segments.map(seg =>
+            seg.id === product.segmentId
+              ? { ...seg, products: [...seg.products, response.data] }
+              : seg
+          ),
           stages: crop!.stages.map(stage =>
             stage.id === product.stageId
-              ? { ...stage, products: [...stage.products, response.data] }
+              ? { 
+                ...stage, 
+                startProducts: [...stage.startProducts, response.data],
+                endProducts: [...stage.endProducts, response.data]
+              }
               : stage
           )
         };
@@ -214,18 +204,18 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
         await axios.put(`/api/products/${product.id}`, product);
         updatedCrop = {
           ...crop!,
-          objectives: crop!.objectives.map(obj => ({
-            ...obj,
-            segments: obj.segments.map(seg => ({
-              ...seg,
-              products: seg.products.map(prod =>
-                prod.id === product.id ? { ...prod, ...product } : prod
-              )
-            }))
+          segments: crop!.segments.map(seg => ({
+            ...seg,
+            products: seg.products.map(prod =>
+              prod.id === product.id ? { ...prod, ...product } : prod
+            )
           })),
           stages: crop!.stages.map(stage => ({
             ...stage,
-            products: stage.products.map(prod =>
+            startProducts: stage.startProducts.map(prod =>
+              prod.id === product.id ? { ...prod, ...product } : prod
+            ),
+            endProducts: stage.endProducts.map(prod =>
               prod.id === product.id ? { ...prod, ...product } : prod
             )
           }))
@@ -234,16 +224,14 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
         await axios.delete(`/api/products/${product.id}`);
         updatedCrop = {
           ...crop!,
-          objectives: crop!.objectives.map(obj => ({
-            ...obj,
-            segments: obj.segments.map(seg => ({
-              ...seg,
-              products: seg.products.filter(prod => prod.id !== product.id)
-            }))
+          segments: crop!.segments.map(seg => ({
+            ...seg,
+            products: seg.products.filter(prod => prod.id !== product.id)
           })),
           stages: crop!.stages.map(stage => ({
             ...stage,
-            products: stage.products.filter(prod => prod.id !== product.id)
+            startProducts: stage.startProducts.filter(prod => prod.id !== product.id),
+            endProducts: stage.endProducts.filter(prod => prod.id !== product.id)
           }))
         };
       }
@@ -332,7 +320,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
               <TabsContent key={objective.id} value={objective.id.toString()}>
                 <div className="space-y-8">
                   <SegmentsCRUD
-                    results={objective.segments || []}
+                    results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
                     objectiveId={objective.id}
                     onSubmit={handleSegmentsSubmit}
                     onCancel={() => {}}
@@ -344,7 +332,9 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                     onCancel={() => {}}
                   />
                   <ProductsCRUD
-                    results={objective.segments?.flatMap(seg => seg.products) || []}
+                    results={crop.segments?.filter(s => s.objectiveId === objective.id).flatMap(seg => seg.products) || []}
+                    segments={crop.segments.filter(s => s.objectiveId === objective.id) || []}
+                    stages={crop.stages.filter(s => s.objectiveId === objective.id) || []}
                     parentId={objective.id}
                     parentType="objective"
                     onSubmit={handleProductsSubmit}

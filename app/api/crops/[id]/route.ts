@@ -27,7 +27,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         },
         stages: {
           include: {
-            products: true,
+            productsStart: true,
+            productsEnd: true,
           },
         },
       },

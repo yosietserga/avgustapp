@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cropId: string } }
+  { params }: { params: { id: string } }
 ) {
-  const cropId = Number(params.cropId);
+  const cropId = Number(params.id);
 
   if (isNaN(cropId)) {
     return NextResponse.json({ message: "Invalid crop ID" }, { status: 400 });
@@ -18,25 +17,31 @@ export async function GET(
       where: {
         OR: [
           {
-            stage: {
-              crop: {
-                id: cropId
-              }
-            },
+            startStage: {
+              cropId: cropId
+            }
+          },
+          {
+            endStage: {
+              cropId: cropId
+            }
           },
           {
             segment: {
               objective: {
-                crop: {
-                  id: cropId
-                }
+                cropId: cropId
               }
             },
           },
         ],
       },
       include: {
-        stage: {
+        startStage: {
+          include: {
+            crop: true
+          }
+        },
+        endStage: {
           include: {
             crop: true
           }
@@ -182,7 +187,16 @@ export async function DELETE(
       where: {
         id,
         OR: [
-          { stage: { cropId } },
+          {
+            startStage: {
+              cropId: cropId
+            }
+          },
+          {
+            endStage: {
+              cropId: cropId
+            }
+          },
           { segment: { objective: { cropId } } }
         ]
       }

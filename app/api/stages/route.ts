@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 
 const StageSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  order: z.number().int().nonnegative(),
+  order: z.number().int().nonnegative().optional(),
   description: z.string().optional(),
   cropId: z.number().int().positive(),
+  objectiveId: z.number().int().positive(),
 });
 
 export async function GET(request: NextRequest) {
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
     const stages = await prisma.stage.findMany({
       where: cropId ? { cropId: Number(cropId) } : undefined,
       include: {
-        products: true,
+        productsStart: true,
+        productsEnd: true,
       },
       orderBy: {
         order: 'asc',
@@ -36,7 +38,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = StageSchema.parse(body);
-    const newStage = await prisma.stage.create({ data: validatedData });
+    
+    const { objectiveId, cropId, name, order, ...stageData } = validatedData;
+
+    const newStage = await prisma.stage.create({
+      data: {
+        ...stageData,
+        name,
+        order:order??1,
+        crop: { connect: { id: cropId } },
+        objective: { connect: { id: objectiveId } },
+      },
+    });
     return NextResponse.json(newStage, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

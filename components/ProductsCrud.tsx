@@ -4,21 +4,41 @@ interface Product {
   id: number;
   name: string;
   description?: string;
+  productType: 'insecticida' | 'fungicida' | 'herbicida' | 'nutricion' | 'feromonas' | 'otros_insumos';
   startPercent?: number;
   endPercent?: number;
-  stageId?: number;
+  startStageId?: number;
+  endStageId?: number;
   segmentId?: number;
+}
+
+interface Stage {
+  id: number;
+  name: string;
+  order: number;
+  objectiveId: number;
+  endProducts: Product[];
+  startProducts: Product[];
+}
+
+interface Segment {
+  id: number;
+  name: string;
+  objectiveId: number;
+  products: Product[];
 }
 
 interface ProductsCRUDProps {
   results: Product[];
   parentId: number;
   parentType: 'segment' | 'stage' | 'objective';
+  segments: Segment[];
+  stages: Stage[];
   onSubmit: (action: 'add' | 'edit' | 'delete', product: Partial<Product>) => void;
   onCancel: () => void;
 }
 
-const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, parentId, parentType, onSubmit, onCancel }) => {
+const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, parentId, parentType, onSubmit, onCancel }) => {
   const [newProduct, setNewProduct] = useState<Partial<Product>>({});
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -33,9 +53,14 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, parentId, parentTy
     setEditingProduct(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewProduct(prev => ({ ...prev, [name]: value }));
+    const numericFields = ['startPercent', 'endPercent', 'segmentId', 'startStageId', 'endStageId', 'objectiveId'];
+    
+    setNewProduct(prev => ({
+      ...prev,
+      [name]: numericFields.includes(name) ? Number(value) : value
+    }));
   };
 
   return (
@@ -58,7 +83,43 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, parentId, parentTy
           placeholder="Description"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        
+        <select
+          name="productType"
+          value={editingProduct?.productType || newProduct.productType || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select Product Type</option>
+          <option value="insecticida">Insecticida</option>
+          <option value="fungicida">Fungicida</option>
+          <option value="herbicida">Herbicida</option>
+          <option value="nutricion">Nutrición</option>
+          <option value="feromonas">Feromonas</option>
+          <option value="otros_insumos">Otros Insumos</option>
+        </select>
+          <select
+          name="segmentId"
+          value={editingProduct?.segmentId || newProduct.segmentId || ''}
+          onChange={handleInputChange}
+          >
+            <option value="">Select Segment</option>
+            {segments.map(segment => (
+              <option key={segment.id} value={segment.id}>{segment.name}</option>
+            ))}
+          </select>
         <div className="flex gap-4">
+          <select
+            name="startStageId"
+            value={editingProduct?.startStageId || newProduct.startStageId || ''}
+            onChange={handleInputChange}
+          >
+            <option value="">Select Start Stage</option>
+            {stages.map(stage => (
+              <option key={stage.id} value={stage.id}>{stage.name}</option>
+            ))}
+          </select>
           <input
             type="number"
             name="startPercent"
@@ -67,6 +128,18 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, parentId, parentTy
             placeholder="Start %"
             className="w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+        <div className="flex gap-4">
+          <select
+            name="endStageId"
+            value={editingProduct?.endStageId || newProduct.endStageId || ''}
+            onChange={handleInputChange}
+          >
+            <option value="">Select End Stage</option>
+            {stages.map(stage => (
+              <option key={stage.id} value={stage.id}>{stage.name}</option>
+            ))}
+          </select>
           <input
             type="number"
             name="endPercent"
@@ -118,12 +191,13 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, parentId, parentTy
             {product.description && (
               <p className="text-sm text-gray-600 mb-2">{product.description}</p>
             )}
+            <span>Segment: {segments.filter(s => s.id === product.segmentId)[0]['name']}</span>
             <div className="text-sm text-gray-500">
               {product.startPercent !== undefined && (
-                <span>Start: {product.startPercent}% </span>
-              )}
+                <span>Start: {stages.filter(s => s.id === product.startStageId)[0]['name']} {product.startPercent}% </span>
+              )}<br />
               {product.endPercent !== undefined && (
-                <span>End: {product.endPercent}%</span>
+                <span>End: {stages.filter(s => s.id === product.endStageId)[0]['name']} {product.endPercent}% </span>
               )}
             </div>
           </li>

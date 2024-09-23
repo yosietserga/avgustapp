@@ -8,7 +8,7 @@ const CropSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   image: z.string().optional(),
-  country_id: z.number().optional()
+  country_id: z.number().int().positive().optional()
 });
 
 export async function GET() {
@@ -26,7 +26,8 @@ export async function GET() {
         },
         stages: {
           include: {
-            products: true,
+            productsStart: true,
+            productsEnd: true,
           },
         },
       },
@@ -42,7 +43,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = CropSchema.parse(body);
-    const newCrop = await prisma.crop.create({ data: validatedData });
+    const { country_id, name, description, image } = validatedData; // Destructure to ensure name is included
+
+    const newCrop = await prisma.crop.create({
+      data: {
+        name, // Ensure name is included
+        description,
+        image,
+        country: country_id ? { connect: { id: country_id } } : undefined
+      }
+    });
+
     return NextResponse.json(newCrop, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
