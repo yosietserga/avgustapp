@@ -1,0 +1,1 @@
+export const SUPERADMIN_TOKEN = 'superadmin-5941d2d7-dcf8-4b6d-a776-33cc4885d222';
