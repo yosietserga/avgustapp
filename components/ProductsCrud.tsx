@@ -191,24 +191,26 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
             {product.description && (
               <p className="text-sm text-gray-600 mb-2">{product.description}</p>
             )}
-            <span>Segment: {segments.filter(s => s.id === product.segmentId)[0]['name']}</span>
+            <span>Segment: {segments.filter(s => s.id === product.segmentId)[0]?.name??""}</span>
             <div className="text-sm text-gray-500">
               {product.startPercent !== undefined && (
-                <span>Start: {stages.filter(s => s.id === product.startStageId)[0]['name']} {product.startPercent}% </span>
+                <span>Start: {stages.filter(s => s.id === product.startStageId)[0]?.name??""} {product.startPercent}% </span>
               )}<br />
               {product.endPercent !== undefined && (
-                <span>End: {stages.filter(s => s.id === product.endStageId)[0]['name']} {product.endPercent}% </span>
+                <span>End: {stages.filter(s => s.id === product.endStageId)[0]?.name??""} {product.endPercent}% </span>
               )}
             </div>
           </li>
         ))}
       </ul>
+      {/**
       <button 
         onClick={onCancel}
         className="mt-6 w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out"
       >
         Cancel
       </button>
+       */}
     </div>
   );
 };

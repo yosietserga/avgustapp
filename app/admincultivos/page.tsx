@@ -133,7 +133,8 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
         const response = await axios.post(`/api/crops/${crop?.id}/stages`, {objectiveId:activeObjectiveId, ...stage});
         updatedCrop = { ...crop!, stages: [...crop!.stages, response.data].sort((a, b) => a.order - b.order) };
       } else if (action === 'edit') {
-        await axios.put(`/api/stages/${stage.id}`, stage);
+        console.log({...stage, cropId:_cropId})
+        await axios.put(`/api/stages/${stage.id}`, {...stage, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           stages: crop!.stages.map(s => s.id === stage.id ? { ...s, ...stage } : s).sort((a, b) => a.order - b.order)
@@ -159,7 +160,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
         const response = await axios.post(`/api/crops/${_cropId}/segments`, {objectiveId:activeObjectiveId, ...segment});
         updatedCrop = { ...crop!, segments: [...crop!.segments, {...response.data, products:[]} ] };
       } else if (action === 'edit') {
-        await axios.put(`/api/segments/${segment.id}`, segment);
+        await axios.put(`/api/segments/${segment.id}`, {...segment, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           segments: crop!.segments.map(s => s.id === segment.id ? { ...s, ...segment } : s)
@@ -201,7 +202,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           )
         };
       } else if (action === 'edit') {
-        await axios.put(`/api/products/${product.id}`, product);
+        await axios.put(`/api/products/${product.id}`, {...product, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           segments: crop!.segments.map(seg => ({
@@ -327,12 +328,18 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                     objectives={[objective]}
                     onSubmit={(action, updatedObjective) => handleObjectivesSubmit(action, { ...updatedObjective, id: objective.id })}
                   />
+                  </div>
+                <div className="space-y-6">
+
                   <SegmentsCRUD
                     results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
                     objectiveId={objective.id}
                     onSubmit={handleSegmentsSubmit}
                     onCancel={() => {}}
                   />
+                  </div>
+                <div className="space-y-6">
+
                   <StagesCRUD
                     results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
                     objectiveId={objective.id}

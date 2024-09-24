@@ -26,6 +26,8 @@ type FormData = {
   icon?: string;
   description?: string;
   objectiveId?: number;
+  cropId?: number;
+  order?: number;
 };
 
 export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, fields, triggerButton }: FormModalProps) {

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button"
+import FormModal from "@/components/form/modal"
+
 
 interface Stage {
   id: number;
@@ -14,17 +17,26 @@ interface StagesCRUDProps {
   onCancel: () => void;
 }
 
+type FormData = {
+  name: string;
+  icon?: string;
+  description?: string;
+  objectiveId?: number;
+  cropId?: number;
+  order?: number;
+};
+
 const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newStageName, setNewStageName] = useState('');
   const [newStageOrder, setNewStageOrder] = useState('1');
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (data: FormData) :void => {
+    console.log(data)
     if (editingStage) {
-      onSubmit('edit', { id: editingStage.id, name: newStageName, order: parseInt(newStageOrder), objectiveId });
+      onSubmit('edit', { id: editingStage.id, name:data.name, objectiveId });
     } else {
-      onSubmit('add', { name: newStageName, order: parseInt(newStageOrder) });
+      onSubmit('add', { name: data.name, order:1 });
     }
     setNewStageName('');
     setNewStageOrder('');
@@ -33,8 +45,22 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Stages</h2>
-      <form onSubmit={handleSubmit} className="mb-6 space-y-4">
+      <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
+         Etapas Fenológicas
+        <FormModal 
+          title={editingStage ? "Editar Etapa" : "Crear Etapa"}
+          onClose={() => {}} 
+          onSubmit={handleSubmit} 
+          fields={{description:false, icon:false}} 
+          triggerButton={
+              <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+                + Crear Etapa
+              </Button>
+            }
+        />
+      </h2>
+      <form className="mb-6 space-y-4">
+        {editingStage && (
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
@@ -45,28 +71,32 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
             className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
-            type="number"
-            value={newStageOrder}
+            type="hidden"
+            value={newStageOrder??1}
             onChange={(e) => setNewStageOrder(e.target.value)}
             placeholder="Order"
             required
             className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
-        <button 
-          type="submit"
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
-        >
-          {editingStage ? 'Update' : 'Add'} Stage
-        </button>
-        {editingStage && (
           <button 
             type="button" 
-            onClick={() => setEditingStage(null)}
+            onClick={(e) => {
+              handleSubmit({name:newStageName})
+            }}
             className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
-            Cancel Edit
+            Guardar
           </button>
+          <button 
+            type="button" 
+            onClick={(e) => {
+              setEditingStage(null);
+            }}
+            className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
+          >
+            Cancelar
+          </button>
+        </div>
         )}
       </form>
       <ul className="space-y-4">
@@ -74,7 +104,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
           <li key={stage.id} className="flex items-center justify-between bg-gray-50 p-4 rounded-md">
             <div>
               <span className="text-gray-800 font-medium">{stage.name}</span>
-              <span className="ml-2 text-sm text-gray-500">Order: {stage.order}</span>
+              {/**<span className="ml-2 text-sm text-gray-500">Order: {stage.order}</span>*/}
             </div>
             <div className="space-x-2">
               <button 
@@ -97,12 +127,14 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
           </li>
         ))}
       </ul>
+      {/**
       <button 
         onClick={onCancel}
         className="mt-6 w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out"
       >
         Cancel
       </button>
+       */}
     </div>
   );
 };

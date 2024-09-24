@@ -29,7 +29,7 @@ export default function ClientComponent() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gradient-to-b from-blue-100 to-green-100">
       <h1 className="text-4xl font-bold mb-12 text-gray-800">Agricultural Management System</h1>
       
-      {session ? (
+      {!session || session ? (
         <>
           <p className="mb-6">Welcome, {session.user.name || session.user.email}!</p>
           {session.user.role === 'superadmin' && (

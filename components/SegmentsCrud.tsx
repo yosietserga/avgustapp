@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import FormModal from "@/components/form/modal"
 import ConfirmationModal from "@/components/form/confirm-modal"
-import { Plus, Edit, Trash } from 'lucide-react';
+import { Sprout, Bug, Leaf, Droplets, Sun, MoreVertical, Plus, Edit, Trash } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface Segment {
   id: number;
@@ -22,6 +23,8 @@ type FormData = {
   icon?: string;
   description?: string;
   objectiveId?: number;
+  cropId?: number;
+  order?: number;
 };
 
 const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
@@ -42,19 +45,23 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Segments</h2>
+      <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
+        Segmentos
+        
+        <FormModal 
+          title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
+          onClose={() => {}} 
+          onSubmit={handleSubmit} 
+          fields={{description:false, icon:false}} 
+          triggerButton={
+              <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+                + Crear segmento
+              </Button>
+            }
+        />
+      </h2>
       
-      <FormModal 
-        title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
-        onClose={() => {}} 
-        onSubmit={handleSubmit} 
-        fields={{description:false, icon:false}} 
-        triggerButton={
-            <Button variant="default" size="sm">
-              <Plus className="h-4 w-4 mr-2" /> Agregar
-            </Button>
-          }
-      />
+      {/*
       <form className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <input
@@ -82,51 +89,94 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
           </button>
         )}
       </form>
+      */}
+
       <ul className="space-y-4">
         {Array.isArray(results) && results.map((segment) => (
           <li key={segment.id} className="flex items-center justify-between bg-gray-50 p-4 rounded-md">
             <span className="text-gray-800">{segment.name}</span>
             <div className="space-x-2">
               
-              <FormModal 
-                title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
-                onClose={() => {}} 
-                onSubmit={handleSubmit} 
-                fields={{description:false, icon:false}} 
-                triggerButton={
-                    <Button variant="secondary" size="sm">
-                      <Edit className="h-4 w-4 mr-2" /> Editar
+                    <FormModal 
+                      title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
+                      onClose={() => {}} 
+                      onSubmit={handleSubmit} 
+                      fields={{description:false, icon:false}} 
+                      triggerButton={
+                          <Button variant="secondary" size="sm">
+                            <Edit className="h-4 w-4 mr-2" /> Editar
+                          </Button>
+                        }
+                    />
+
+                    
+                    <ConfirmationModal 
+                      isOpen={showModal} 
+                      onClose={() => setShowCofirmModal(false)} 
+                      onConfirm={() => onSubmit('delete', { id: segment.id })} 
+                    />
+                    <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
+                      <Trash className="h-4 w-4 mr-2" /> Delete
                     </Button>
-                  }
-              />
-              <button 
-                onClick={() => {
-                  setEditingSegment(segment);
-                  setNewSegmentName(segment.name);
-                }}
-                className="text-blue-500 hover:text-blue-700"
-              >
-                Edit
-              </button>
-              
-              <ConfirmationModal 
-                isOpen={showModal} 
-                onClose={() => setShowCofirmModal(false)} 
-                onConfirm={() => onSubmit('delete', { id: segment.id })} 
-              />
-              <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
-                <Trash className="h-4 w-4 mr-2" /> Delete
-              </Button>
+                    {/*
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <FormModal 
+                      title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
+                      onClose={() => {}} 
+                      onSubmit={handleSubmit} 
+                      fields={{description:false, icon:false}} 
+                      triggerButton={
+                          <Button variant="secondary" size="sm">
+                            <Edit className="h-4 w-4 mr-2" /> Editar
+                          </Button>
+                        }
+                    />
+                    {/*
+                    <button 
+                      onClick={() => {
+                        setEditingSegment(segment);
+                        setNewSegmentName(segment.name);
+                      }}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      Edit
+                    </button>
+                  </DropdownMenuItem>
+
+                    <ConfirmationModal 
+                      isOpen={showModal} 
+                      onClose={() => setShowCofirmModal(false)} 
+                      onConfirm={() => onSubmit('delete', { id: segment.id })} 
+                    />
+                  <DropdownMenuItem>
+                    <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
+                      <Trash className="h-4 w-4 mr-2" /> Delete
+                    </Button>
+                  </DropdownMenuItem>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
+                    */}
+
             </div>
           </li>
         ))}
       </ul>
+      {/**
       <button 
         onClick={onCancel}
         className="mt-6 w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-300 ease-in-out"
       >
         Cancel
       </button>
+       */}
     </div>
   );
 };
