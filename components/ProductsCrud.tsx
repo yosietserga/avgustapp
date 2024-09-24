@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import ProductForm from '@/components/form/product-modal'
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Product {
   id: number;
@@ -63,18 +67,26 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
       [name]: numericFields.includes(name) ? Number(value) : value
     }));
   };
+    
+  const handleSelectChange = (name: string, value: string) => {
+    const numericFields = ['startPercent', 'endPercent', 'segmentId', 'startStageId', 'endStageId', 'objectiveId'];
+    
+    setNewProduct(prev => ({
+      ...prev,
+      [name]: numericFields.includes(name) ? Number(value) : value
+    }));
+  };
 
   return (
     <div className="p-6">
-      <ProductForm />
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Products</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Productos</h2>
       <form onSubmit={handleSubmit} className="mb-6 space-y-4">
         <input
           type="text"
           name="name"
           value={newProduct.name || ''}
           onChange={handleInputChange}
-          placeholder="Product name"
+          placeholder="Nombre del producto"
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -82,7 +94,7 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
           name="description"
           value={newProduct.description || ''}
           onChange={handleInputChange}
-          placeholder="Description"
+          placeholder="Descripcion del Producto"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         
@@ -93,7 +105,7 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Select Product Type</option>
+          <option value="">Selecciona Tipo de Producto</option>
           <option value="insecticida">Insecticida</option>
           <option value="fungicida">Fungicida</option>
           <option value="herbicida">Herbicida</option>
@@ -101,69 +113,97 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
           <option value="feromonas">Feromonas</option>
           <option value="otros_insumos">Otros Insumos</option>
         </select>
+
           <select
           name="segmentId"
           value={editingProduct?.segmentId || newProduct.segmentId || ''}
           onChange={handleInputChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select Segment</option>
+            <option value="">Selecciona Segmento</option>
             {segments.map(segment => (
               <option key={segment.id} value={segment.id}>{segment.name}</option>
             ))}
           </select>
-        <div className="flex gap-4">
-          <select
-            name="startStageId"
-            value={editingProduct?.startStageId || newProduct.startStageId || ''}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Start Stage</option>
-            {stages.map(stage => (
-              <option key={stage.id} value={stage.id}>{stage.name}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            name="startPercent"
-            value={newProduct.startPercent || ''}
-            onChange={handleInputChange}
-            placeholder="Start %"
-            className="w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+        <div className="space-y-4">
+          
+
+          
+            <div className="flex items-end space-x-2">
+              <div className="flex-1">
+                <Label>Etapa Ininical</Label>
+                <Select                  
+                  name="startStageId"
+                  value={editingProduct?.startStageId?.toString() || newProduct.startStageId?.toString() || ''}
+                  onValueChange={(value) => handleSelectChange('startStageId', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona Etapa Inicial" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {stages.map(stage => (
+                    <SelectItem key={stage.id} value={stage.id?.toString()}>{stage.name}</SelectItem>
+                  ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="w-20">
+                <Label>%</Label>
+                <Input 
+                  type="number"
+                  name="startPercent"
+                  value={newProduct.startPercent || ''}
+                  onChange={handleInputChange}
+                  placeholder="10%"
+                />
+              </div>
+
+              
+              <div className="flex-1">
+                <Label>Etapa Final</Label>
+                <Select                  
+                  name="endtStageId"
+                  value={editingProduct?.endStageId?.toString() || newProduct.endStageId?.toString() || ''}
+                  onValueChange={(value) => handleSelectChange('endStageId', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona Etapa Final" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {stages.map(stage => (
+                    <SelectItem key={stage.id} value={stage.id?.toString()}>{stage.name}</SelectItem>
+                  ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="w-20">
+                <Label>%</Label>
+                <Input 
+                  type="number"
+                  name="endPercent"
+                  value={newProduct.endPercent || ''}
+                  onChange={handleInputChange}
+                  placeholder="90%"
+                />
+              </div>
+            </div>
+
+          
         </div>
-        <div className="flex gap-4">
-          <select
-            name="endStageId"
-            value={editingProduct?.endStageId || newProduct.endStageId || ''}
-            onChange={handleInputChange}
-          >
-            <option value="">Select End Stage</option>
-            {stages.map(stage => (
-              <option key={stage.id} value={stage.id}>{stage.name}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            name="endPercent"
-            value={newProduct.endPercent || ''}
-            onChange={handleInputChange}
-            placeholder="End %"
-            className="w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button 
-          type="submit"
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
-        >
-          {editingProduct ? 'Update' : 'Add'} Product
-        </button>
+        
+          <div className="pt-4 text-right">
+            <Button type="submit" className="bg-[#8bc34a] text-white hover:bg-[#7cb342]">
+              + Agregar Producto
+            </Button>
+          </div>
         {editingProduct && (
           <button 
             type="button" 
             onClick={() => setEditingProduct(null)}
             className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
-            Cancel Edit
+            Cancelar
           </button>
         )}
       </form>
@@ -180,13 +220,13 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
                   }}
                   className="text-blue-500 hover:text-blue-700"
                 >
-                  Edit
+                  Editar
                 </button>
                 <button 
                   onClick={() => onSubmit('delete', { id: product.id })}
                   className="text-red-500 hover:text-red-700"
                 >
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -196,10 +236,10 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
             <span>Segment: {segments.filter(s => s.id === product.segmentId)[0]?.name??""}</span>
             <div className="text-sm text-gray-500">
               {product.startPercent !== undefined && (
-                <span>Start: {stages.filter(s => s.id === product.startStageId)[0]?.name??""} {product.startPercent}% </span>
+                <span>Inicio: {stages.filter(s => s.id === product.startStageId)[0]?.name??""} {product.startPercent}% </span>
               )}<br />
               {product.endPercent !== undefined && (
-                <span>End: {stages.filter(s => s.id === product.endStageId)[0]?.name??""} {product.endPercent}% </span>
+                <span>Fin: {stages.filter(s => s.id === product.endStageId)[0]?.name??""} {product.endPercent}% </span>
               )}
             </div>
           </li>
