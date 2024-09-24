@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link'
-import { Globe, Sprout } from 'lucide-react'
+import { Globe, Sprout, User2 } from 'lucide-react'
 import { useSession, signIn, signOut } from "next-auth/react";
 import LoginForm from '@/components/form/login';
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,12 @@ export default function ClientComponent() {
                 <Sprout className="h-16 w-16 text-white" />
               </div>
               <span className="mt-4 text-xl font-semibold text-gray-800 group-hover:text-green-600">Crops</span>
+            </Link>
+            <Link href="/users" className="flex flex-col items-center group">
+              <div className="bg-red-500 p-6 rounded-full transition-all duration-300 group-hover:bg-green-600">
+                <User2 className="h-16 w-16 text-white" />
+              </div>
+              <span className="mt-4 text-xl font-semibold text-gray-800 group-hover:text-green-600">Users</span>
             </Link>
           </div>
           <Button onClick={() => signOut()} className="bg-red-500 hover:bg-red-600 text-white">
