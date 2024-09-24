@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ProductForm from '@/components/form/product-modal'
 
 interface Product {
   id: number;
@@ -64,7 +65,8 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
+    <div className="p-6">
+      <ProductForm />
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Products</h2>
       <form onSubmit={handleSubmit} className="mb-6 space-y-4">
         <input
