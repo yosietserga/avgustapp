@@ -31,13 +31,6 @@ export default function ClientComponent() {
       
       {!session || session ? (
         <>
-          <p className="mb-6">Welcome, {session.user.name || session.user.email}!</p>
-          {session.user.role === 'superadmin' && (
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">Superadmin Dashboard</h2>
-              {/* Add superadmin-specific links or components */}
-            </div>
-          )}
           <div className="flex space-x-12 mb-8">
             <Link href="/pais" className="flex flex-col items-center group">
               <div className="bg-blue-500 p-6 rounded-full transition-all duration-300 group-hover:bg-blue-600">
