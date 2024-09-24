@@ -44,7 +44,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 max-w-md mx-auto mt-10">
+    <div className="p-6">
       <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
          Etapas Fenológicas
         <FormModal 

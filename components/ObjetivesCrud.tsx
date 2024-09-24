@@ -26,13 +26,13 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
       onSubmit={() => onSubmit('add', { name: 'New Objective' })} 
       fields={{description:false, icon:true}} 
       triggerButton={
-          <Button variant="default" size="sm">
-            <Plus className="h-4 w-4 mr-2" /> Agregar Objetivo
+          <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+            + Agregar Objetivo
           </Button>
         }
       />
       <CardContent className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Objectives</h2>
+        <h2 className="text-2xl font-bold mb-4">Objetivos</h2>
         <div className="space-y-4">
           {objectives.map((objective) => (
             <div key={objective.id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
@@ -43,8 +43,8 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
                 onSubmit={() => onSubmit('edit', objective)} 
                 fields={{description:false, icon:true}} 
                 triggerButton={
-                  <Button variant="secondary" size="sm">
-                    <Edit className="h-4 w-4 mr-2" /> Edit
+                  <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+                    <Edit className="h-4 w-4 mr-2" /> Editar
                   </Button>
                 }
               />
@@ -60,8 +60,8 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
             </div>
           ))}
         </div>
-        <Button  className="bg-[#10B981] text-white hover:bg-[#059669] mt-4 w-full" onClick={() => onSubmit('add', { name: 'New Objective' })}>
-          <Plus className="mr-2 h-4 w-4" /> Add Objective
+        <Button  className="bg-[#10B981] text-white hover:bg-[#059669] mt-4 w-full" onClick={() => onSubmit('add', { name: 'Nuevo Objetivo' })}>
+          + Agregar Objetivo
         </Button>
       </CardContent>
     </Card>

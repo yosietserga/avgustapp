@@ -76,7 +76,7 @@ const CropForm: React.FC<CropFormProps> = ({ cropId, onSubmit, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 bg-white shadow-md rounded-lg">
       <div className="mb-4">
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name:</label>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nombre del Cultivo:</label>
         <input
           type="text"
           id="name"
@@ -87,7 +87,7 @@ const CropForm: React.FC<CropFormProps> = ({ cropId, onSubmit, onCancel }) => {
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country:</label>
+        <label htmlFor="country" className="block text-sm font-medium text-gray-700">Selecciona País:</label>
         <select
           id="country"
           value={countryId}
@@ -95,7 +95,7 @@ const CropForm: React.FC<CropFormProps> = ({ cropId, onSubmit, onCancel }) => {
           required
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         >
-          <option value="">Select a country</option>
+          <option value="">Selecciona...</option>
           {countries.map((country) => (
             <option key={country.id} value={country.id}>{country.nombre}</option>
           ))}
@@ -106,14 +106,14 @@ const CropForm: React.FC<CropFormProps> = ({ cropId, onSubmit, onCancel }) => {
           type="submit"
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
-          {cropId ? 'Update' : 'Create'} Crop
+          {cropId ? 'Guardar' : 'Guardar'}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
         >
-          Cancel
+          Cancelar
         </button>
       </div>
     </form>

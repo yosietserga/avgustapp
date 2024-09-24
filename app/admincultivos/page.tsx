@@ -291,22 +291,22 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
     <div className="min-h-screen flex flex-col bg-gray-100">
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{crop.name} Management Plan</h1>
-          <Button onClick={() => setShowCropForm(true)}>Edit Crop</Button>
+          <h1 className="text-2xl font-bold">Plan de Cultivo {crop.name}</h1>
+          <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]" onClick={() => setShowCropForm(true)}>Editar Cultivo</Button>
         </div>
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8">
         {crop.objectives.length === 0 ? (
           <div className="text-center">
-            <p className="mb-4">No objectives yet. Add your first objective to get started.</p>
-            <Button onClick={() => handleObjectivesSubmit('add', { name: 'New Objective' })}>
-              <Plus className="mr-2 h-4 w-4" /> Add Objective
+            <p className="mb-4">No hay objetivos. Agrega el primer objetivo para iniciar.</p>
+            <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
+              + Agregar Objetivo
             </Button>
           </div>
         ) : (
           <Tabs value={activeObjectiveId?.toString()} onValueChange={(value) => setActiveObjectiveId(Number(value))}>
-            <TabsList>
+            <TabsList className="bg-white p-1 rounded-md">
               {crop.objectives.map((objective) => (
                 <TabsTrigger 
                   key={objective.id} 
@@ -316,20 +316,23 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                   {objective.name}
                 </TabsTrigger>
               ))}
-              <Button variant="ghost" onClick={() => handleObjectivesSubmit('add', { name: 'New Objective' })}>
-                <Plus className="mr-2 h-4 w-4" /> Add Objective
+              <Button variant="ghost" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
+                + Agregar Objetivo
               </Button>
             </TabsList>
 
             {crop.objectives.map((objective) => (
-              <TabsContent key={objective.id} value={objective.id.toString()}>
+              <TabsContent key={objective.id} value={objective.id.toString()}  className="bg-white p-6 rounded-lg shadow">
                 <div className="space-y-8">
                   <ObjectivesCRUD
                     objectives={[objective]}
                     onSubmit={(action, updatedObjective) => handleObjectivesSubmit(action, { ...updatedObjective, id: objective.id })}
                   />
                   </div>
-                <div className="space-y-6">
+
+              <div className="grid grid-cols-2 gap-6">
+
+                <div>
 
                   <SegmentsCRUD
                     results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
@@ -338,7 +341,8 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                     onCancel={() => {}}
                   />
                   </div>
-                <div className="space-y-6">
+
+                <div>
 
                   <StagesCRUD
                     results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
@@ -346,6 +350,10 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                     onSubmit={handleStagesSubmit}
                     onCancel={() => {}}
                   />
+                  </div>
+                  </div>
+                <div className="w-full mt-8">
+
                   <ProductsCRUD
                     results={crop.segments?.filter(s => s.objectiveId === objective.id).flatMap(seg => seg.products) || []}
                     segments={crop.segments.filter(s => s.objectiveId === objective.id) || []}

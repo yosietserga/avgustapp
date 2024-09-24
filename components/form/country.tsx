@@ -49,7 +49,7 @@ export default function CountryForm({ initialData }: CountryFormProps) {
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <div className="mb-6">
         <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-700">
-          Country Name
+          Nombre del País
         </label>
         <input
           type="text"
@@ -63,7 +63,7 @@ export default function CountryForm({ initialData }: CountryFormProps) {
       </div>
       <div className="mb-6">
         <label htmlFor="code" className="block mb-2 text-sm font-medium text-gray-700">
-          Country Code
+          ISO Code
         </label>
         <input
           type="text"
@@ -84,7 +84,7 @@ export default function CountryForm({ initialData }: CountryFormProps) {
             : 'bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
         }`}
       >
-        {isSubmitting ? 'Submitting...' : initialData ? 'Update Country' : 'Add Country'}
+        {isSubmitting ? 'Enviando...' : initialData ? 'Guardar' : 'Guardar'}
       </button>
     </form>
   )
