@@ -54,7 +54,7 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
           onSubmit={handleSubmit} 
           fields={{description:false, icon:false}} 
           triggerButton={
-              <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+              <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
                 + Crear segmento
               </Button>
             }

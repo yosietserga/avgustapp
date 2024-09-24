@@ -30,6 +30,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
   const [newStageName, setNewStageName] = useState('');
   const [newStageOrder, setNewStageOrder] = useState('1');
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
+  const [isOpen, setModalOpen] = useState(false);
 
   const handleSubmit = (data: FormData) :void => {
     console.log(data)
@@ -41,6 +42,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
     setNewStageName('');
     setNewStageOrder('');
     setEditingStage(null);
+    setModalOpen(false)
   };
 
   return (
@@ -53,7 +55,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
           onSubmit={handleSubmit} 
           fields={{description:false, icon:false}} 
           triggerButton={
-              <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+              <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
                 + Crear Etapa
               </Button>
             }

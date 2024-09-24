@@ -9,9 +9,10 @@ import ObjectivesCRUD from '@/components/ObjetivesCrud';
 import StagesCRUD from '@/components/StagesCrud';
 import SegmentsCRUD from '@/components/SegmentsCrud';
 import ProductsCRUD from '@/components/ProductsCrud';
-import { CropTable } from '@/components/CropTableForAdmin';
-import { Sprout, Plus } from 'lucide-react';
+import CropManagementPlan from '@/components/CropManagementPlan';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Loader2, MoreVertical, Edit, Trash } from "lucide-react"
 
 interface Product {
   id: number;
@@ -65,11 +66,13 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
   */
   const [crop, setCrop] = useState<Crop | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
+  const [isOpen, setModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCropForm, setShowCropForm] = useState(!cropId);
   const [_cropId, setCropId] = useState(null);
   const [activeObjectiveId, setActiveObjectiveId] = useState<number | null>(null);
-
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   console.log({_cropId})
   useEffect(() => {
@@ -97,6 +100,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
   };
   const handleObjectivesSubmit = async (action: 'add' | 'edit' | 'delete', objective: Partial<Objective>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${crop?.id}/objectives`, objective);
@@ -122,12 +126,15 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
     } catch (err) {
       console.error(`Failed to ${action} objective:`, err);
       setError(`Failed to ${action} objective`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   
   const handleStagesSubmit = async (action: 'add' | 'edit' | 'delete', stage: Partial<Stage>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${crop?.id}/stages`, {objectiveId:activeObjectiveId, ...stage});
@@ -139,6 +146,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           ...crop!,
           stages: crop!.stages.map(s => s.id === stage.id ? { ...s, ...stage } : s).sort((a, b) => a.order - b.order)
         };
+
       } else if (action === 'delete') {
         await axios.delete(`/api/stages/${stage.id}`);
         updatedCrop = {
@@ -146,15 +154,19 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           stages: crop!.stages.filter(s => s.id !== stage.id)
         };
       }
+      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} stage:`, err);
       setError(`Failed to ${action} stage`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleSegmentsSubmit = async (action: 'add' | 'edit' | 'delete', segment: Partial<Segment>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${_cropId}/segments`, {objectiveId:activeObjectiveId, ...segment});
@@ -172,15 +184,19 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           segments: crop!.segments.filter(s => s.id !== segment.id)
         };
       }
+      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} segment:`, err);
       setError(`Failed to ${action} segment`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleProductsSubmit = async (action: 'add' | 'edit' | 'delete', product: Partial<Product>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/products`, {...product, cropId:_cropId});
@@ -236,19 +252,24 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           }))
         };
       }
+      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} product:`, err);
       setError(`Failed to ${action} product`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleCropSubmit = async (cropData: { name: string; description?: string; image?: string }) => {
     try {
+      setLoading(true);
       if (_cropId) {
         // Update existing crop
         const response = await axios.put(`/api/crops/${_cropId}`, cropData);
-        setCrop({...response.data, ...crop});
+        setCrop({...crop, ...response.data});
+
       } else {
         // Create new crop
         const response = await axios.post('/api/crops', cropData);
@@ -259,11 +280,13 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
       }
       setShowCropForm(false);
       setError(null);
+      setModalOpen(false);
     } catch (err) {
       console.error('Failed to save crop:', err);
       setError('Failed to save crop');
     } finally {
       setLoading(false);
+      setModalOpen(false);
     }
   };
 
@@ -292,7 +315,9 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">Plan de Cultivo {crop.name}</h1>
-          <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]" onClick={() => setShowCropForm(true)}>Editar Cultivo</Button>
+          <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]" onClick={() => setShowCropForm(true)}>
+            Editar Cultivo
+          </Button>
         </div>
       </header>
 
@@ -300,26 +325,54 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
         {crop.objectives.length === 0 ? (
           <div className="text-center">
             <p className="mb-4">No hay objetivos. Agrega el primer objetivo para iniciar.</p>
-            <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
+            <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
               + Agregar Objetivo
+              {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}
             </Button>
           </div>
         ) : (
           <Tabs value={activeObjectiveId?.toString()} onValueChange={(value) => setActiveObjectiveId(Number(value))}>
+            <div className="overflow-x-auto">
+
             <TabsList className="bg-white p-1 rounded-md">
               {crop.objectives.map((objective) => (
+                <>
                 <TabsTrigger 
                   key={objective.id} 
                   value={objective.id.toString()}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
                 >
                   {objective.name}
                 </TabsTrigger>
+                <DropdownMenu open={openMenuId === objective.id} onOpenChange={(open) => setOpenMenuId(open ? objective.id : null)}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0 absolute right-1 top-1/2 -translate-y-1/2">
+                        <MoreVertical className="h-4 w-4" />
+                        ...
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleObjectivesSubmit('edit', { id: objective.id, name: objective.name })}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Editar {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleObjectivesSubmit('delete', { id: objective.id })}>
+                        <Trash className="mr-2 h-4 w-4" />
+                        <span>Eliminar {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  </>
               ))}
-              <Button variant="ghost" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
-                + Agregar Objetivo
-              </Button>
             </TabsList>
+            </div>
+
+            <div className="pt-0 text-right">
+              <Button onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })} variant="outline" className="bg-[#8bc34a] text-white hover:bg-[#059669]">
+                + Agregar Objetivo
+                {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}
+              </Button>
+            </div>
 
             {crop.objectives.map((objective) => (
               <TabsContent key={objective.id} value={objective.id.toString()}  className="bg-white p-6 rounded-lg shadow">
@@ -363,6 +416,11 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                     onSubmit={handleProductsSubmit}
                     onCancel={() => {}}
                   />
+
+                  <CropManagementPlan
+                    cropId={_cropId}
+                    objectiveId={activeObjectiveId}
+                  />
                 </div>
               </TabsContent>
             ))}
@@ -377,7 +435,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           </DialogHeader>
           <p>{error}</p>
           <DialogFooter>
-            <Button onClick={() => setError(null)}>Close</Button>
+            <Button onClick={() => setError(null)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

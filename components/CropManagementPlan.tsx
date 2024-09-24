@@ -76,15 +76,30 @@ interface Objective {
   stages: Stage[];
 }
 
+interface Crop {
+  id: number;
+  country_id: number;
+  name: string;
+  description: string;
+  image: string;
+  objectives: Objective[];
+  segments: Segment[];
+  stages: Stage[];
+  //createdAt
+  //updatedAt
+}
+
 interface ObjectivesData {
   [key: number]: Objective;
 }
 
 interface IProps {
   cropId?: number;
+  objectiveId?: number;
 }
 
-const CropManagementPlan: React.FC<IProps> = ({ cropId }) => {
+const CropManagementPlan: React.FC<IProps> = ({ cropId, objectiveId }) => {
+  const [crop, setCrop] = useState<Crop>();
   const [objectives, setObjectives] = useState<ObjectivesData>({});
   const [segments, setSegments] = useState<Segment[]>([]);
   const [stages, setStages] = useState<Stage[]>([]);
@@ -101,9 +116,16 @@ const CropManagementPlan: React.FC<IProps> = ({ cropId }) => {
   useEffect(() => {
     //if (!cropId) return;
     setCropId(cropId);
+    if (objectiveId) setSelectedObjective(objectiveId);
     const fetchObjectives = async () => {
       //if (cropId) {
         try {
+          const r = await fetch(`/api/crops/${cropId}`);
+          if (r.ok) {
+            const cropData = await r.json();
+            setCrop(cropData as Crop);
+          }
+
           const response = await fetch(`/api/crops/${cropId}/objectives`);
           /*
           if (!response.ok) {
@@ -115,7 +137,7 @@ const CropManagementPlan: React.FC<IProps> = ({ cropId }) => {
           setObjectives(_objectives);
           if (d.length > 0) {
             const firstObjectiveId = d[0].id;
-            setSelectedObjective(firstObjectiveId);
+            if (!objectiveId) setSelectedObjective(firstObjectiveId);
             setSegments(_objectives[firstObjectiveId].segments);
             setStages(_objectives[firstObjectiveId].stages);
           }
@@ -219,9 +241,7 @@ const CropManagementPlan: React.FC<IProps> = ({ cropId }) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Plan De Manejo Del Cultivo De Arroz</h2>
-      <p className="mb-4">Selecciona Tu Objetivo</p>
-
+      <h2 className="text-2xl font-bold mb-4">{crop?.name??"Plan de Gestión de Cultivo"}</h2>
       {isMobile ? (
         <Select 
           value={selectedObjective?.toString()} 

@@ -26,7 +26,7 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
       onSubmit={() => onSubmit('add', { name: 'New Objective' })} 
       fields={{description:false, icon:true}} 
       triggerButton={
-          <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+          <Button variant="outline" className="bg-[#8bc34a] text-white hover:bg-[#059669]">
             + Agregar Objetivo
           </Button>
         }
@@ -43,7 +43,7 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
                 onSubmit={() => onSubmit('edit', objective)} 
                 fields={{description:false, icon:true}} 
                 triggerButton={
-                  <Button variant="outline" size="sm"  className="text-[#10B981] border-[#10B981]">
+                  <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
                     <Edit className="h-4 w-4 mr-2" /> Editar
                   </Button>
                 }
@@ -60,7 +60,7 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
             </div>
           ))}
         </div>
-        <Button  className="bg-[#10B981] text-white hover:bg-[#059669] mt-4 w-full" onClick={() => onSubmit('add', { name: 'Nuevo Objetivo' })}>
+        <Button  className="bg-[#8bc34a] text-white hover:bg-[#059669] mt-4 w-full" onClick={() => onSubmit('add', { name: 'Nuevo Objetivo' })}>
           + Agregar Objetivo
         </Button>
       </CardContent>
