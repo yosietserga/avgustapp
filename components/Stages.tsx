@@ -24,7 +24,7 @@ export function Stages({ stages, newStageName, setNewStageName, handleAddStage }
     <div>
       <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
         Etapas Fenológicas
-        <Button variant="outline" size="sm" onClick={handleAddStage} className="text-[#10B981] border-[#10B981]">
+        <Button variant="outline" size="sm" onClick={handleAddStage} className="text-[#8bc34a] border-[#8bc34a]">
           + Crear etapa
         </Button>
       </h2>

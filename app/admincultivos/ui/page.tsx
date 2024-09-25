@@ -153,14 +153,14 @@ export default function CropManagement() {
                 <TabsTrigger
                   key={objective.id}
                   value={objective.id}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
                 >
                   {objective.icon}
                   <span>{objective.title}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
-            <Button onClick={() => setIsNewObjectiveModalOpen(true)} variant="outline" className="bg-[#10B981] text-white hover:bg-[#059669]">
+            <Button onClick={() => setIsNewObjectiveModalOpen(true)} variant="outline" className="bg-[#8bc34a] text-white hover:bg-[#059669]">
               + Crear objetivo
             </Button>
           </div>
@@ -170,7 +170,7 @@ export default function CropManagement() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
                     Etapas Fenológicas
-                    <Button variant="outline" size="sm" onClick={handleAddStage} className="text-[#10B981] border-[#10B981]">
+                    <Button variant="outline" size="sm" onClick={handleAddStage} className="text-[#8bc34a] border-[#8bc34a]">
                       + Crear etapa
                     </Button>
                   </h2>
@@ -204,7 +204,7 @@ export default function CropManagement() {
                 <div>
                   <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
                     Segmentos
-                    <Button variant="outline" size="sm" onClick={handleAddSegment} className="text-[#10B981] border-[#10B981]">
+                    <Button variant="outline" size="sm" onClick={handleAddSegment} className="text-[#8bc34a] border-[#8bc34a]">
                       + Crear segmento
                     </Button>
                   </h2>
@@ -305,7 +305,7 @@ export default function CropManagement() {
                     onChange={(e) => setNewProductDescription(e.target.value)}
                     placeholder="Descripción del producto"
                   />
-                  <Button onClick={handleAddProduct} className="col-span-2 bg-[#10B981] text-white hover:bg-[#059669]">
+                  <Button onClick={handleAddProduct} className="col-span-2 bg-[#8bc34a] text-white hover:bg-[#059669]">
                     Agregar producto
                   </Button>
                 </div>
@@ -413,7 +413,7 @@ export default function CropManagement() {
                 </div>
               </div>
             </div>
-            <Button onClick={handleAddObjective} className="w-full bg-[#10B981] text-white hover:bg-[#059669]">
+            <Button onClick={handleAddObjective} className="w-full bg-[#8bc34a] text-white hover:bg-[#059669]">
               Crear objetivo
             </Button>
           </div>

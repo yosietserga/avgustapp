@@ -310,7 +310,7 @@ export default function CropManagement(props) {
                 <TabsTrigger 
                   key={objective.id} 
                   value={objective.id.toString()}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
                 >
                   {objective.name}
                 </TabsTrigger>

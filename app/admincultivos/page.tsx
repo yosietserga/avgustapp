@@ -12,7 +12,7 @@ import ProductsCRUD from '@/components/ProductsCrud';
 import CropManagementPlan from '@/components/CropManagementPlan';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Loader2, MoreVertical, Edit, Trash } from "lucide-react"
+import { Sprout, Loader2, MoreVertical, Edit, Trash } from "lucide-react"
 
 interface Product {
   id: number;
@@ -342,6 +342,7 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                   value={objective.id.toString()}
                   className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
                 >
+                  {objective.icon??<Sprout className="w-4 h-4" />}
                   {objective.name}
                 </TabsTrigger>
                 <DropdownMenu open={openMenuId === objective.id} onOpenChange={(open) => setOpenMenuId(open ? objective.id : null)}>

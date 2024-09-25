@@ -104,7 +104,7 @@ const CropForm: React.FC<CropFormProps> = ({ cropId, onSubmit, onCancel }) => {
       <div className="flex justify-between">
         <button
           type="submit"
-          className="px-4 py-2 bg-[#10B981] text-white hover:bg-[#059669] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          className="px-4 py-2 bg-[#8bc34a] text-white hover:bg-[#059669] rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
           Guardar
         </button>

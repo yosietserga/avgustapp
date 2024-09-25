@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { AlertCircle, Upload } from 'lucide-react'
+import NextImage from 'next/image'
 
 interface FieldsFormModalProps {
   description: boolean
@@ -59,10 +60,14 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
       }
       try {
         setIsUploading(true);
-        const uploadedPath:string = await onUpload(file);
-        setImage(file);
-        setIcon(uploadedPath);
-        setErrors((prev) => ({ ...prev, icon: undefined }));
+        if (typeof onUpload === 'function') {
+          const uploadedPath = await onUpload(file);
+          setImage(file);
+          setIcon(uploadedPath);
+          setErrors((prev) => ({ ...prev, icon: undefined }));
+        } else {
+          throw new Error('onUpload is not a function');
+        }
       } catch (error) {
         console.error('Error uploading file:', error);
         setErrors((prev) => ({ ...prev, icon: 'Error uploading file. Please try again.' }));
@@ -86,7 +91,7 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
       return
     }
 
-    const img = new Image()
+    const img = new window.Image()
     img.onload = () => {
       if (img.width !== 400 || img.height !== 400) {
         setErrors((prev) => ({ ...prev, icon: 'La imagen debe ser de 400x400 píxeles.' }))
@@ -99,12 +104,6 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
       setErrors((prev) => ({ ...prev, icon: 'No se pudo cargar la imagen.' }))
     }
     img.src = URL.createObjectURL(file)
-  }
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files[0]
-    handleImageChange(file)
   }
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,16 +123,18 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
       return
     }
 
-  const formData: FormData = {
-    name,
-    icon
-  };
+    const formData: FormData = { name };
 
-  if (fields.description) {
-    formData.description = description ?? "";
-  }
-  console.log(formData);
-  onSubmit(formData);
+    if (fields.icon && icon) {
+      formData.icon = icon;
+    }
+    if (fields.description) {
+      formData.description = description ?? "";
+    }
+    console.log(formData);
+    onSubmit(formData);
+    onClose()
+
   }
 
   return (
@@ -182,7 +183,7 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
           </label>
           <div className="mt-1 flex items-center">
             {icon ? (
-              <img src={icon} alt="Uploaded icon" className="h-12 w-12 object-cover rounded-full" />
+              <NextImage src={icon} width={48} height={48} alt="Uploaded icon" className="h-12 w-12 object-cover rounded-full" />
             ) : (
               <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,7 +206,7 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
             accept="image/*"
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
-                handleImageDrop([e.target.files[0]]);
+                handleImageChange(e.target.files[0]);
               }
             }}
           />
@@ -215,7 +216,7 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
       )}
 
           <Button type="submit" className="w-full bg-[#8bc34a] hover:bg-[#7cb342] text-white">
-            Crear Etapa
+            Guardar
           </Button>
         </form>
       </DialogContent>

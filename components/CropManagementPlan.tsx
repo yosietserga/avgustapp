@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { Sprout } from "lucide-react"
+
 
 function prepareData(objectives_from_db) {
   const managementData = {};
@@ -268,7 +270,7 @@ const CropManagementPlan: React.FC<IProps> = ({ cropId, objectiveId }) => {
           <TabsList className="grid w-full grid-cols-5 gap-2">
             {Object.keys(objectives).map((i) => (
               <TabsTrigger key={"objective_"+objectives[i].id} value={objectives[i].id} className="text-left">
-                <span className="mr-2">{objectives[i].icon}</span>
+                {objectives[i].icon ? <span className="mr-2">{objectives[i].icon}</span> : <Sprout className="w-4 h-4" />}
                 {objectives[i].name}
               </TabsTrigger>
             ))}
