@@ -7,11 +7,39 @@ import { Plus, Edit, Trash } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card"
 import NextImage from 'next/image'
 
+interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  productType: 'insecticida' | 'fungicida' | 'herbicida' | 'nutricion' | 'feromonas' | 'otros_insumos';
+  startPercent?: number;
+  endPercent?: number;
+  stageId?: number;
+  segmentId?: number;
+}
+
+interface Segment {
+  id: number;
+  name: string;
+  objectiveId: number;
+  products: Product[];
+}
+
+interface Stage {
+  id: number;
+  name: string;
+  order: number;
+  objectiveId: number;
+  endProducts: Product[];
+  startProducts: Product[];
+}
+
 interface Objective {
   id: number;
   name: string;
-  icon?: string | File;
-
+  icon: React.ReactNode;
+  segments: Segment[];
+  stages: Stage[];
 }
 
 interface ObjectivesCRUDProps {
@@ -23,7 +51,7 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
   const [showModal, setShowConfirmModal] = React.useState(false);
   const [selectedObjective, setSelectedObjective] = React.useState<Objective | null>(null);
 
-
+  /*
   const handleUpload = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -40,8 +68,9 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
     const data = await response.json();
     return data.filePath;
   };
-  
+  */
   const handleSubmit = async (action: 'add' | 'edit', data: Partial<Objective>) => {
+    /*
     if (data.icon && data.icon instanceof File) {
       try {
         const iconPath = await handleUpload(data.icon);
@@ -52,6 +81,7 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
         return;
       }
     }
+      */
     onSubmit(action, data);
   };
 
@@ -59,7 +89,6 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
     <>
     <Card className="w-full">
       <FormModal 
-      onUpload={handleUpload} 
       onClose={() => {}} 
       onSubmit={(data) => handleSubmit('add', data)} 
       fields={{description:false, icon:true}} 
@@ -89,7 +118,6 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
               </div>
               <div className="space-x-2">
                 <FormModal 
-                  onUpload={handleUpload}
                   onClose={() => {}} 
                   onSubmit={(data) => handleSubmit('edit', { ...objective, ...data })} 
                   fields={{description: false, icon: true}} 

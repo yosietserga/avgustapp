@@ -73,7 +73,7 @@ interface Segment {
 interface Objective {
   id: number;
   name: string;
-  icon: string;
+  icon: React.ReactNode;
   segments: Segment[];
   stages: Stage[];
 }

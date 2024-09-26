@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import CropForm from '@/components/form/crop';
+import ObjetivesTabs from '@/components/ObjetivesTabs';
 import ObjectivesCRUD from '@/components/ObjetivesCrud';
 import StagesCRUD from '@/components/StagesCrud';
 import SegmentsCRUD from '@/components/SegmentsCrud';
@@ -332,8 +333,11 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           </div>
         ) : (
           <Tabs value={activeObjectiveId?.toString()} onValueChange={(value) => setActiveObjectiveId(Number(value))}>
-            <div className="overflow-x-auto">
+            <ObjetivesTabs objectives={crop.objectives} onSubmit={handleObjectivesSubmit} />
 
+            {/**
+            <div className="overflow-x-auto flex justify-between items-center">
+            
             <TabsList className="bg-white p-1 rounded-md">
               {crop.objectives.map((objective) => (
                 <>
@@ -344,12 +348,11 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                 >
                   {objective.icon??<Sprout className="w-4 h-4" />}
                   {objective.name}
-                </TabsTrigger>
+                  
                 <DropdownMenu open={openMenuId === objective.id} onOpenChange={(open) => setOpenMenuId(open ? objective.id : null)}>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0 absolute right-1 top-1/2 -translate-y-1/2">
-                        <MoreVertical className="h-4 w-4" />
-                        ...
+                      <Button variant="ghost" className="h-5 w-5 pt-1">
+                        :
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -363,26 +366,28 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </TabsTrigger>
                   </>
               ))}
             </TabsList>
-            </div>
-
-            <div className="pt-0 text-right">
-              <Button onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })} variant="outline" className="bg-[#8bc34a] text-white hover:bg-[#059669]">
+            
+              <Button onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })} variant="outline" className="pt-0 text-right bg-[#8bc34a] text-white hover:bg-[#059669]">
                 + Agregar Objetivo
                 {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}
               </Button>
             </div>
+            */}
 
             {crop.objectives.map((objective) => (
               <TabsContent key={objective.id} value={objective.id.toString()}  className="bg-white p-6 rounded-lg shadow">
+            {/**
                 <div className="space-y-8">
                   <ObjectivesCRUD
                     objectives={[objective]}
                     onSubmit={(action, updatedObjective) => handleObjectivesSubmit(action, { ...updatedObjective, id: objective.id })}
                   />
                   </div>
+            */}
 
               <div className="grid grid-cols-2 gap-6">
 
