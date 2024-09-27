@@ -30,18 +30,38 @@ type FormData = {
 const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newSegmentName, setNewSegmentName] = useState('');
   const [editingSegment, setEditingSegment] = useState<Segment | null>(null);
+  const [segmentToDelete, setSegmentToDelete] = useState<Segment | null>(null);
   const [showModal, setShowCofirmModal] = React.useState(false)
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
-  const handleSubmit = (data: FormData) :void => {
-    
+  const handleSubmit = async (data: FormData) :Promise<void> => {
     if (editingSegment) {
-      onSubmit('edit', { id: editingSegment.id, name: data.name });
+      await onSubmit('edit', { id: editingSegment.id, name: data.name, objectiveId });
     } else {
-      onSubmit('add', { name: data.name, objectiveId });
+      await onSubmit('add', { name: data.name, objectiveId });
     }
+
     setNewSegmentName('');
     setEditingSegment(null);
+    setIsFormModalOpen(false);
   };
+  
+  const handleDelete = (segment: Segment) => {
+    setSegmentToDelete(segment);
+    setShowCofirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (segmentToDelete) {
+      await onSubmit('delete', { id: segmentToDelete.id });
+      setShowCofirmModal(false);
+      setSegmentToDelete(null);
+    }
+  };
+
+  const openFormModal = () => {
+    setIsFormModalOpen(true);
+  }
 
   return (
     <div className="p-6">
@@ -49,47 +69,58 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
         Segmentos
         
         <FormModal 
+          isOpen={isFormModalOpen}
           title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
-          onClose={() => {}} 
-          onSubmit={handleSubmit} 
+          onClose={() => {
+            setIsFormModalOpen(false);
+            setEditingSegment(null);
+          }} 
+          onSubmit={handleSubmit}
           fields={{description:false, icon:false}} 
-          triggerButton={
-              <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
-                + Crear segmento
-              </Button>
-            }
+          values={editingSegment??null} 
+          triggerButton={<></>}
         />
+        <Button 
+          variant="outline" 
+          size="sm"  
+          className="text-[#8bc34a] border-[#8bc34a]" 
+          onClick={openFormModal}
+        >
+          + Crear Segmento
+        </Button>
       </h2>
       
-      {/*
+      {editingSegment && (
       <form className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
             value={newSegmentName}
             onChange={(e) => setNewSegmentName(e.target.value)}
-            placeholder="Segment name"
+            placeholder="Nombre del Segmento"
             required
             className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button 
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
+            type="button" 
+            onClick={() => {
+              handleSubmit({name:newSegmentName})
+            }}
+            className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
-            {editingSegment ? 'Update' : 'Add'} Segment
+            Guardar
           </button>
         </div>
-        {editingSegment && (
           <button 
             type="button" 
             onClick={() => setEditingSegment(null)}
             className="mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
-            Cancel Edit
+            Cancelar
           </button>
-        )}
       </form>
-      */}
+        )}
+      
 
       <ul className="space-y-4">
         {Array.isArray(results) && results.map((segment) => (
@@ -97,28 +128,6 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
             <span className="text-gray-800">{segment.name}</span>
             <div className="space-x-2">
               
-                    <FormModal 
-                      title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
-                      onClose={() => {}} 
-                      onSubmit={handleSubmit} 
-                      fields={{description:false, icon:false}} 
-                      triggerButton={
-                          <Button variant="secondary" size="sm">
-                            <Edit className="h-4 w-4 mr-2" /> Editar
-                          </Button>
-                        }
-                    />
-
-                    
-                    <ConfirmationModal 
-                      isOpen={showModal} 
-                      onClose={() => setShowCofirmModal(false)} 
-                      onConfirm={() => onSubmit('delete', { id: segment.id })} 
-                    />
-                    <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
-                      <Trash className="h-4 w-4 mr-2" /> Delete
-                    </Button>
-                    {/*
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -127,48 +136,37 @@ const SegmentsCRUD: React.FC<SegmentsCRUDProps> = ({ results, objectiveId, onSub
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem>
-                    <FormModal 
-                      title={editingSegment ? "Editar Segmento" : "Crear Segmento"}
-                      onClose={() => {}} 
-                      onSubmit={handleSubmit} 
-                      fields={{description:false, icon:false}} 
-                      triggerButton={
-                          <Button variant="secondary" size="sm">
-                            <Edit className="h-4 w-4 mr-2" /> Editar
-                          </Button>
-                        }
-                    />
-                    {/*
-                    <button 
+                    <Button 
                       onClick={() => {
                         setEditingSegment(segment);
                         setNewSegmentName(segment.name);
+                        setIsFormModalOpen(true);
                       }}
-                      className="text-blue-500 hover:text-blue-700"
+                      variant="secondary" size="sm"
                     >
-                      Edit
-                    </button>
+                        <Edit className="h-4 w-4 mr-2" /> Editar
+                    </Button>
                   </DropdownMenuItem>
 
-                    <ConfirmationModal 
-                      isOpen={showModal} 
-                      onClose={() => setShowCofirmModal(false)} 
-                      onConfirm={() => onSubmit('delete', { id: segment.id })} 
-                    />
                   <DropdownMenuItem>
-                    <Button variant="destructive" size="sm" onClick={() => setShowCofirmModal(true)}>
-                      <Trash className="h-4 w-4 mr-2" /> Delete
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(segment)}>
+                      <Trash className="h-4 w-4 mr-2" /> Eliminar
                     </Button>
                   </DropdownMenuItem>
 
                 </DropdownMenuContent>
               </DropdownMenu>
-                    */}
-
             </div>
+
           </li>
         ))}
       </ul>
+      
+      <ConfirmationModal 
+        isOpen={showModal} 
+        onClose={() => setShowCofirmModal(false)} 
+        onConfirm={confirmDelete} 
+      />
       {/**
       <button 
         onClick={onCancel}

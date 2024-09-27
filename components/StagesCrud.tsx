@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import FormModal from "@/components/form/modal"
+import ConfirmationModal from "@/components/form/confirm-modal"
+import { Edit, Trash, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 
 interface Stage {
@@ -29,21 +32,41 @@ type FormData = {
 const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit, onCancel }) => {
   const [newStageName, setNewStageName] = useState('');
   const [newStageOrder, setNewStageOrder] = useState('1');
+  const [stageToDelete, setStageToDelete] = useState<Stage | null>(null);
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
-  const [isOpen, setModalOpen] = useState(false);
+  const [showModal, setShowCofirmModal] = useState(false)
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
-  const handleSubmit = (data: FormData) :void => {
+  const handleSubmit = async (data: FormData):Promise<void> => {
     console.log(data)
     if (editingStage) {
-      onSubmit('edit', { id: editingStage.id, name:data.name, objectiveId });
+      await onSubmit('edit', { id: editingStage.id, name:data.name, order:data.order, objectiveId });
     } else {
-      onSubmit('add', { name: data.name, order:1 });
+      await onSubmit('add', { name: data.name, order:1 });
     }
     setNewStageName('');
     setNewStageOrder('');
     setEditingStage(null);
-    setModalOpen(false)
+    setIsFormModalOpen(false);
   };
+  
+  
+  const handleDelete = (stage:Stage) => {
+    setStageToDelete(stage);
+    setShowCofirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (stageToDelete) {
+      await onSubmit('delete', { id: stageToDelete.id });
+      setShowCofirmModal(false);
+      setStageToDelete(null);
+    }
+  };
+
+  const openFormModal = () => {
+    setIsFormModalOpen(true);
+  }
 
   return (
     <div className="p-6">
@@ -51,15 +74,25 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
          Etapas Fenológicas
         <FormModal 
           title={editingStage ? "Editar Etapa" : "Crear Etapa"}
-          onClose={() => {}} 
+          isOpen={isFormModalOpen}
+          onClose={() => {
+            setIsFormModalOpen(false);
+            setEditingStage(null)
+          }}
           onSubmit={handleSubmit} 
           fields={{description:false, icon:false}} 
-          triggerButton={
-              <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
-                + Crear Etapa
-              </Button>
-            }
+          values={editingStage??null} 
+          triggerButton={<></>}
         />
+        <Button 
+          variant="outline" 
+          size="sm"  
+          className="text-[#8bc34a] border-[#8bc34a]" 
+          onClick={openFormModal}
+        >
+          + Crear Etapa
+        </Button>
+        
       </h2>
       <form className="mb-6 space-y-4">
         {editingStage && (
@@ -83,7 +116,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
           <button 
             type="button" 
             onClick={(e) => {
-              handleSubmit({name:newStageName})
+              handleSubmit({name:newStageName, order:parseInt(newStageOrder)})
             }}
             className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
@@ -93,6 +126,7 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
             type="button" 
             onClick={(e) => {
               setEditingStage(null);
+              setIsFormModalOpen(false);
             }}
             className="w-full mt-2 text-sm text-gray-600 hover:text-gray-800"
           >
@@ -109,26 +143,45 @@ const StagesCRUD: React.FC<StagesCRUDProps> = ({ results, objectiveId, onSubmit,
               {/**<span className="ml-2 text-sm text-gray-500">Order: {stage.order}</span>*/}
             </div>
             <div className="space-x-2">
-              <button 
-                onClick={() => {
-                  setEditingStage(stage);
-                  setNewStageName(stage.name);
-                  setNewStageOrder(stage.order.toString());
-                }}
-                className="text-blue-500 hover:text-blue-700"
-              >
-                Edit
-              </button>
-              <button 
-                onClick={() => onSubmit('delete', { id: stage.id })}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger >
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <Button 
+                      onClick={() => {
+                        setEditingStage(stage);
+                        setNewStageName(stage.name);
+                        setNewStageOrder(stage.order.toString());
+                        setIsFormModalOpen(true);
+                      }}
+                      variant="secondary" size="sm"
+                    >
+                      <Edit className="h-4 w-4 mr-2" /> Editar
+                    </Button>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(stage)}>
+                      <Trash className="h-4 w-4 mr-2" /> Eliminar
+                    </Button>
+                  </DropdownMenuItem>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </li>
         ))}
       </ul>
+      
+      <ConfirmationModal 
+        isOpen={showModal} 
+        onClose={() => setShowCofirmModal(false)} 
+        onConfirm={confirmDelete} 
+      />
       {/**
       <button 
         onClick={onCancel}

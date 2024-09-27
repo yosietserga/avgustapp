@@ -1,17 +1,18 @@
-// app/admincultivos/page.tsx
+// app/admincultivos/[id]/page.tsx
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import CropForm from '@/components/form/crop';
+import ObjetivesTabs from '@/components/ObjetivesTabs';
 import ObjectivesCRUD from '@/components/ObjetivesCrud';
 import StagesCRUD from '@/components/StagesCrud';
 import SegmentsCRUD from '@/components/SegmentsCrud';
 import ProductsCRUD from '@/components/ProductsCrud';
-import { CropTable } from '@/components/CropTableForAdmin';
-import { Sprout, Plus } from 'lucide-react';
+import CropManagementPlan from '@/components/CropManagementPlan';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from "lucide-react"
 
 interface Product {
   id: number;
@@ -33,6 +34,7 @@ interface Segment {
 
 interface Objective {
   id: number;
+  cropId: number;
   name: string;
   icon: React.ReactNode;
   segments: Segment[];
@@ -57,7 +59,7 @@ interface Crop {
 }
 
 export default function CropManagement(props) {
-    const { id } = props.params
+    const { id } = props.params;
   /*
   const [objectives, setObjectives] = useState<Objective[]>(initialObjectives);
   const [activeTab, setActiveTab] = useState(objectives[0].id);
@@ -66,12 +68,13 @@ export default function CropManagement(props) {
   */
   const [crop, setCrop] = useState<Crop | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCropForm, setShowCropForm] = useState(!id);
   const [_cropId, setCropId] = useState(null);
   const [activeObjectiveId, setActiveObjectiveId] = useState<number | null>(null);
 
-
+  console.log({_cropId})
   useEffect(() => {
     if (id) {
       fetchCrop();
@@ -97,6 +100,7 @@ export default function CropManagement(props) {
   };
   const handleObjectivesSubmit = async (action: 'add' | 'edit' | 'delete', objective: Partial<Objective>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${crop?.id}/objectives`, objective);
@@ -122,22 +126,27 @@ export default function CropManagement(props) {
     } catch (err) {
       console.error(`Failed to ${action} objective:`, err);
       setError(`Failed to ${action} objective`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   
   const handleStagesSubmit = async (action: 'add' | 'edit' | 'delete', stage: Partial<Stage>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${crop?.id}/stages`, {objectiveId:activeObjectiveId, ...stage});
         updatedCrop = { ...crop!, stages: [...crop!.stages, response.data].sort((a, b) => a.order - b.order) };
       } else if (action === 'edit') {
-        await axios.put(`/api/stages/${stage.id}`, stage);
+        console.log({...stage, cropId:_cropId})
+        await axios.put(`/api/stages/${stage.id}`, {...stage, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           stages: crop!.stages.map(s => s.id === stage.id ? { ...s, ...stage } : s).sort((a, b) => a.order - b.order)
         };
+
       } else if (action === 'delete') {
         await axios.delete(`/api/stages/${stage.id}`);
         updatedCrop = {
@@ -149,17 +158,20 @@ export default function CropManagement(props) {
     } catch (err) {
       console.error(`Failed to ${action} stage:`, err);
       setError(`Failed to ${action} stage`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleSegmentsSubmit = async (action: 'add' | 'edit' | 'delete', segment: Partial<Segment>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/crops/${_cropId}/segments`, {objectiveId:activeObjectiveId, ...segment});
         updatedCrop = { ...crop!, segments: [...crop!.segments, {...response.data, products:[]} ] };
       } else if (action === 'edit') {
-        await axios.put(`/api/segments/${segment.id}`, segment);
+        await axios.put(`/api/segments/${segment.id}`, {...segment, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           segments: crop!.segments.map(s => s.id === segment.id ? { ...s, ...segment } : s)
@@ -175,11 +187,14 @@ export default function CropManagement(props) {
     } catch (err) {
       console.error(`Failed to ${action} segment:`, err);
       setError(`Failed to ${action} segment`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleProductsSubmit = async (action: 'add' | 'edit' | 'delete', product: Partial<Product>) => {
     try {
+      setLoadingSpinner(true);
       let updatedCrop;
       if (action === 'add') {
         const response = await axios.post(`/api/products`, {...product, cropId:_cropId});
@@ -201,7 +216,7 @@ export default function CropManagement(props) {
           )
         };
       } else if (action === 'edit') {
-        await axios.put(`/api/products/${product.id}`, product);
+        await axios.put(`/api/products/${product.id}`, {...product, cropId:_cropId});
         updatedCrop = {
           ...crop!,
           segments: crop!.segments.map(seg => ({
@@ -239,15 +254,19 @@ export default function CropManagement(props) {
     } catch (err) {
       console.error(`Failed to ${action} product:`, err);
       setError(`Failed to ${action} product`);
+    } finally {
+      setLoadingSpinner(false);
     }
   };
 
   const handleCropSubmit = async (cropData: { name: string; description?: string; image?: string }) => {
     try {
+      setLoading(true);
       if (_cropId) {
         // Update existing crop
         const response = await axios.put(`/api/crops/${_cropId}`, cropData);
-        setCrop({...response.data, ...crop});
+        setCrop({...crop, ...response.data});
+
       } else {
         // Create new crop
         const response = await axios.post('/api/crops', cropData);
@@ -290,55 +309,58 @@ export default function CropManagement(props) {
     <div className="min-h-screen flex flex-col bg-gray-100">
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{crop.name} Management Plan</h1>
-          <Button onClick={() => setShowCropForm(true)}>Edit Crop</Button>
+          <h1 className="text-2xl font-bold">Plan de Cultivo {crop.name}</h1>
+          <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]" onClick={() => setShowCropForm(true)}>
+            Editar Cultivo
+          </Button>
         </div>
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8">
         {crop.objectives.length === 0 ? (
           <div className="text-center">
-            <p className="mb-4">No objectives yet. Add your first objective to get started.</p>
-            <Button onClick={() => handleObjectivesSubmit('add', { name: 'New Objective' })}>
-              <Plus className="mr-2 h-4 w-4" /> Add Objective
+            <p className="mb-4">No hay objetivos. Agrega el primer objetivo para iniciar.</p>
+            <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]" onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })}>
+              + Agregar Objetivo
+              {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}
             </Button>
           </div>
         ) : (
           <Tabs value={activeObjectiveId?.toString()} onValueChange={(value) => setActiveObjectiveId(Number(value))}>
-            <TabsList>
-              {crop.objectives.map((objective) => (
-                <TabsTrigger 
-                  key={objective.id} 
-                  value={objective.id.toString()}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
-                >
-                  {objective.name}
-                </TabsTrigger>
-              ))}
-              <Button variant="ghost" onClick={() => handleObjectivesSubmit('add', { name: 'New Objective' })}>
-                <Plus className="mr-2 h-4 w-4" /> Add Objective
-              </Button>
-            </TabsList>
+            <ObjetivesTabs objectives={crop.objectives} onSubmit={handleObjectivesSubmit} />
 
             {crop.objectives.map((objective) => (
-              <TabsContent key={objective.id} value={objective.id.toString()}>
+              <TabsContent key={objective.id} value={objective.id.toString()}  className="bg-white p-6 rounded-lg shadow">
+                {/**
                 <div className="space-y-8">
                   <ObjectivesCRUD
                     objectives={[objective]}
                     onSubmit={(action, updatedObjective) => handleObjectivesSubmit(action, { ...updatedObjective, id: objective.id })}
                   />
-                  <SegmentsCRUD
-                    results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
-                    objectiveId={objective.id}
-                    onSubmit={handleSegmentsSubmit}
-                    onCancel={() => {}}
-                  />
-                  <StagesCRUD
-                    results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
-                    objectiveId={objective.id}
-                    onSubmit={handleStagesSubmit}
-                    onCancel={() => {}}
-                  />
+                </div>
+                */}
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <StagesCRUD
+                      results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
+                      objectiveId={objective.id}
+                      onSubmit={handleStagesSubmit}
+                      onCancel={() => {}}
+                    />
+                  </div>
+                  
+                  <div>
+                    <SegmentsCRUD
+                      results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
+                      objectiveId={objective.id}
+                      onSubmit={handleSegmentsSubmit}
+                      onCancel={() => {}}
+                    />
+                  </div>
+                </div>
+                  
+                <div className="w-full mt-8">
                   <ProductsCRUD
                     results={crop.segments?.filter(s => s.objectiveId === objective.id).flatMap(seg => seg.products) || []}
                     segments={crop.segments.filter(s => s.objectiveId === objective.id) || []}
@@ -347,6 +369,11 @@ export default function CropManagement(props) {
                     parentType="objective"
                     onSubmit={handleProductsSubmit}
                     onCancel={() => {}}
+                  />
+
+                  <CropManagementPlan
+                    cropId={_cropId}
+                    objectiveId={activeObjectiveId}
                   />
                 </div>
               </TabsContent>
@@ -362,7 +389,7 @@ export default function CropManagement(props) {
           </DialogHeader>
           <p>{error}</p>
           <DialogFooter>
-            <Button onClick={() => setError(null)}>Close</Button>
+            <Button onClick={() => setError(null)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

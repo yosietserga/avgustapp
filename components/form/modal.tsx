@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react'
+"use client"
+import React, { useState, useRef, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,8 +17,9 @@ interface FormModalProps {
   title?: string
   isOpen?: boolean
   fields: FieldsFormModalProps
+  values: FormData
   onClose: () => void
-  onSubmit: (data: FormData) => void
+  onSubmit: (data: FormData) => void|Promise<void>
   onUpload?: (file: File) => Promise<string>
   triggerButton?: React.ReactNode; // New prop for custom trigger button
 }
@@ -31,7 +33,7 @@ type FormData = {
   order?: number;
 };
 
-export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, fields, triggerButton }: FormModalProps) {
+export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, fields, values, triggerButton }: FormModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [image, setImage] = useState<File | null>(null)
@@ -39,6 +41,18 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
   const [errors, setErrors] = useState<{ name?: string, icon?: string }>({})
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(()=>{
+    if (!!values && values.name) {
+      setName(values.name)
+    }
+    if (!!values && values.description) {
+      setDescription(values.description)
+    }
+    if (!!values && values.icon) {
+      setIcon(values.icon)
+    }
+  }, [values])
 
   const validateImage = (file: File): string | null => {
     if (!file.type.startsWith('image/')) {
@@ -106,17 +120,18 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
     img.src = URL.createObjectURL(file)
   }
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: { name?: string, icon?: string } = {}
 
     if (!name.trim()) {
       newErrors.name = 'Este campo es obligatorio'
     }
-
+    /*
     if (fields.icon && !icon) {
       newErrors.icon = 'Please upload an icon';
     }
+    */
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -125,16 +140,32 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
 
     const formData: FormData = { name };
 
+    if (values?.cropId) {
+      formData.cropId = values.cropId;
+    }
+    if (values?.order) {
+      formData.order = values.order;
+    }
     if (fields.icon && icon) {
       formData.icon = icon;
     }
     if (fields.description) {
       formData.description = description ?? "";
     }
-    console.log(formData);
-    onSubmit(formData);
-    onClose()
 
+    await onSubmit(formData);
+
+    setName("")
+    
+    if (fields.icon && icon) {
+      setIcon("")
+      setImage(null)
+    }
+    if (fields.description) {
+      setDescription("")
+    }
+
+    onClose()
   }
 
   return (
@@ -214,7 +245,7 @@ export default function FormModal({ title, isOpen, onClose, onSubmit, onUpload, 
           {isUploading && <p className="mt-2 text-sm text-gray-500">Uploading...</p>}
         </div>
       )}
-
+          {/*//TODO: add css animation when the button is clicked or active */}
           <Button type="submit" className="w-full bg-[#8bc34a] hover:bg-[#7cb342] text-white">
             Guardar
           </Button>

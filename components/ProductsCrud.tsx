@@ -149,7 +149,6 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
               </div>
 
               <div className="w-20">
-                <Label>%</Label>
                 <Input 
                   type="number"
                   name="startPercent"
@@ -178,7 +177,6 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
                 </Select>
               </div>
               <div className="w-20">
-                <Label>%</Label>
                 <Input 
                   type="number"
                   name="endPercent"
@@ -192,8 +190,8 @@ const ProductsCRUD: React.FC<ProductsCRUDProps> = ({ results, segments, stages, 
           
         </div>
         
-          <div className="pt-4 text-right">
-            <Button type="submit" className="bg-[#8bc34a] text-white hover:bg-[#7cb342]">
+          <div className="pt-4 text-center w-full">
+            <Button type="submit" className="w-full bg-[#8bc34a] text-white hover:bg-[#7cb342]">
               + Agregar Producto
             </Button>
           </div>

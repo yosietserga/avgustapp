@@ -2,7 +2,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import CropForm from '@/components/form/crop';
 import ObjetivesTabs from '@/components/ObjetivesTabs';
@@ -12,8 +12,7 @@ import SegmentsCRUD from '@/components/SegmentsCrud';
 import ProductsCRUD from '@/components/ProductsCrud';
 import CropManagementPlan from '@/components/CropManagementPlan';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Sprout, Loader2, MoreVertical, Edit, Trash } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 interface Product {
   id: number;
@@ -35,6 +34,7 @@ interface Segment {
 
 interface Objective {
   id: number;
+  cropId: number;
   name: string;
   icon: React.ReactNode;
   segments: Segment[];
@@ -68,12 +68,10 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
   const [crop, setCrop] = useState<Crop | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingSpinner, setLoadingSpinner] = useState(false);
-  const [isOpen, setModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCropForm, setShowCropForm] = useState(!cropId);
   const [_cropId, setCropId] = useState(null);
   const [activeObjectiveId, setActiveObjectiveId] = useState<number | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   console.log({_cropId})
   useEffect(() => {
@@ -155,7 +153,6 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           stages: crop!.stages.filter(s => s.id !== stage.id)
         };
       }
-      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} stage:`, err);
@@ -185,7 +182,6 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           segments: crop!.segments.filter(s => s.id !== segment.id)
         };
       }
-      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} segment:`, err);
@@ -253,7 +249,6 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           }))
         };
       }
-      setModalOpen(false)
       setCrop(updatedCrop!);
     } catch (err) {
       console.error(`Failed to ${action} product:`, err);
@@ -281,13 +276,11 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
       }
       setShowCropForm(false);
       setError(null);
-      setModalOpen(false);
     } catch (err) {
       console.error('Failed to save crop:', err);
       setError('Failed to save crop');
     } finally {
       setLoading(false);
-      setModalOpen(false);
     }
   };
 
@@ -335,84 +328,38 @@ export default function CropManagement({ cropId }: { cropId?: number }) {
           <Tabs value={activeObjectiveId?.toString()} onValueChange={(value) => setActiveObjectiveId(Number(value))}>
             <ObjetivesTabs objectives={crop.objectives} onSubmit={handleObjectivesSubmit} />
 
-            {/**
-            <div className="overflow-x-auto flex justify-between items-center">
-            
-            <TabsList className="bg-white p-1 rounded-md">
-              {crop.objectives.map((objective) => (
-                <>
-                <TabsTrigger 
-                  key={objective.id} 
-                  value={objective.id.toString()}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md data-[state=active]:bg-[#8bc34a] data-[state=active]:text-white"
-                >
-                  {objective.icon??<Sprout className="w-4 h-4" />}
-                  {objective.name}
-                  
-                <DropdownMenu open={openMenuId === objective.id} onOpenChange={(open) => setOpenMenuId(open ? objective.id : null)}>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-5 w-5 pt-1">
-                        :
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleObjectivesSubmit('edit', { id: objective.id, name: objective.name })}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>Editar {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleObjectivesSubmit('delete', { id: objective.id })}>
-                        <Trash className="mr-2 h-4 w-4" />
-                        <span>Eliminar {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TabsTrigger>
-                  </>
-              ))}
-            </TabsList>
-            
-              <Button onClick={() => handleObjectivesSubmit('add', { name: 'Nuevo Objetivo' })} variant="outline" className="pt-0 text-right bg-[#8bc34a] text-white hover:bg-[#059669]">
-                + Agregar Objetivo
-                {loadingSpinner && <Loader2 className="animate-spin h-5 w-5 ml-2" />}
-              </Button>
-            </div>
-            */}
-
             {crop.objectives.map((objective) => (
               <TabsContent key={objective.id} value={objective.id.toString()}  className="bg-white p-6 rounded-lg shadow">
-            {/**
+                {/**
                 <div className="space-y-8">
                   <ObjectivesCRUD
                     objectives={[objective]}
                     onSubmit={(action, updatedObjective) => handleObjectivesSubmit(action, { ...updatedObjective, id: objective.id })}
                   />
+                </div>
+                */}
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <StagesCRUD
+                      results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
+                      objectiveId={objective.id}
+                      onSubmit={handleStagesSubmit}
+                      onCancel={() => {}}
+                    />
                   </div>
-            */}
-
-              <div className="grid grid-cols-2 gap-6">
-
-                <div>
-
-                  <SegmentsCRUD
-                    results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
-                    objectiveId={objective.id}
-                    onSubmit={handleSegmentsSubmit}
-                    onCancel={() => {}}
-                  />
+                  
+                  <div>
+                    <SegmentsCRUD
+                      results={crop.segments.filter(segment => segment.objectiveId === objective.id) || []}
+                      objectiveId={objective.id}
+                      onSubmit={handleSegmentsSubmit}
+                      onCancel={() => {}}
+                    />
                   </div>
-
-                <div>
-
-                  <StagesCRUD
-                    results={crop.stages.filter(stage => stage.objectiveId === objective.id) || []}
-                    objectiveId={objective.id}
-                    onSubmit={handleStagesSubmit}
-                    onCancel={() => {}}
-                  />
-                  </div>
-                  </div>
+                </div>
+                  
                 <div className="w-full mt-8">
-
                   <ProductsCRUD
                     results={crop.segments?.filter(s => s.objectiveId === objective.id).flatMap(seg => seg.products) || []}
                     segments={crop.segments.filter(s => s.objectiveId === objective.id) || []}

@@ -36,6 +36,7 @@ interface Stage {
 
 interface Objective {
   id: number;
+  cropId: number;
   name: string;
   icon: React.ReactNode;
   segments: Segment[];
@@ -47,9 +48,36 @@ interface ObjectivesCRUDProps {
   onSubmit: (action: 'add' | 'edit' | 'delete', objective: Partial<Objective>) => void;
 }
 
+type FormData = {
+  name: string;
+  icon?: string;
+  description?: string;
+  cropId?: number;
+};
+
 const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit }) => {
-  const [showModal, setShowConfirmModal] = React.useState(false);
   const [selectedObjective, setSelectedObjective] = React.useState<Objective | null>(null);
+
+  const [objectiveToDelete, setObjectiveToDelete] = React.useState<Objective | null>(null);
+  const [showModal, setShowCofirmModal] = React.useState(false)
+  const [isFormModalOpen, setIsFormModalOpen] = React.useState(false);
+
+  const handleDelete = (o: Objective) => {
+    setObjectiveToDelete(o);
+    setShowCofirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (objectiveToDelete) {
+      await onSubmit('delete', { id: objectiveToDelete.id });
+      setShowCofirmModal(false);
+      setObjectiveToDelete(null);
+    }
+  };
+
+  const openFormModal = () => {
+    setIsFormModalOpen(true);
+  }
 
   /*
   const handleUpload = async (file: File): Promise<string> => {
@@ -85,19 +113,35 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
     onSubmit(action, data);
   };
 
+  const objectiveToFormData = (objective: Objective | null): FormData | null => {
+    if (!objective) return null;
+    return {
+      name: objective.name,
+      icon: objective.icon ? String(objective.icon) : undefined,
+      cropId: objective.cropId,
+      // Add other fields as needed
+    };
+  };
+
   return (
     <>
     <Card className="w-full">
       <FormModal 
-      onClose={() => {}} 
+      isOpen={isFormModalOpen}
+      onClose={() => {
+        setIsFormModalOpen(false);
+        setSelectedObjective(null);
+      }} 
       onSubmit={(data) => handleSubmit('add', data)} 
       fields={{description:false, icon:true}} 
+        values={objectiveToFormData(selectedObjective)} 
       triggerButton={
           <Button variant="outline" className="bg-[#8bc34a] text-white hover:bg-[#059669]">
             + Agregar Objetivo
           </Button>
         }
       />
+
       <CardContent className="p-6">
         <h2 className="text-2xl font-bold mb-4">Objetivos</h2>
         <div className="space-y-4">
@@ -117,25 +161,21 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
                 <span className="text-lg font-medium">{objective.name}</span>
               </div>
               <div className="space-x-2">
-                <FormModal 
-                  onClose={() => {}} 
-                  onSubmit={(data) => handleSubmit('edit', { ...objective, ...data })} 
-                  fields={{description: false, icon: true}} 
-                  triggerButton={
-                    <Button variant="outline" size="sm"  className="text-[#8bc34a] border-[#8bc34a]">
-                      <Edit className="h-4 w-4 mr-2" /> Editar
-                    </Button>
-                  }
-                />
+                <Button 
+                  onClick={() => {
+                    setSelectedObjective(objective);
+                    setIsFormModalOpen(true);
+                  }}
+                  variant="secondary" size="sm"
+                >
+                    <Edit className="h-4 w-4 mr-2" /> Editar
+                </Button>
                 <Button 
                   variant="destructive" 
                   size="sm" 
-                  onClick={() => {
-                    setSelectedObjective(objective);
-                    setShowConfirmModal(true);
-                  }}
+                  onClick={() => handleDelete(objective)}
                 >
-                  <Trash className="h-4 w-4 mr-2" /> Delete
+                  <Trash className="h-4 w-4 mr-2" /> Eliminar
                 </Button>
               </div>
             </div>
@@ -145,15 +185,10 @@ const ObjectivesCRUD: React.FC<ObjectivesCRUDProps> = ({ objectives, onSubmit })
     </Card>
     
     <ConfirmationModal 
-        isOpen={showModal} 
-        onClose={() => setShowConfirmModal(false)} 
-        onConfirm={() => {
-          if (selectedObjective) {
-            onSubmit('delete', selectedObjective);
-            setShowConfirmModal(false);
-          }
-        }} 
-      />
+      isOpen={showModal} 
+      onClose={() => setShowCofirmModal(false)} 
+      onConfirm={confirmDelete} 
+    />
     </>
   );
 };
