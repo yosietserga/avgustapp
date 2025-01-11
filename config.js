@@ -6,13 +6,23 @@ const staticRules = [
   },
   {
     type: "TP",
-    triggerPercentage: 2,
+    triggerPercentage: 1,
     amountPercentage: 100,
   },
   {
     type: "TP",
-    triggerPercentage: 3,
+    triggerPercentage: 1,
     amountPercentage: 100,
+  },
+  {
+    type: "TP",
+    triggerPercentage: 2,
+    amountPercentage: 100,
+  },
+  {
+    type: "SL",
+    triggerPercentage: 30,
+    amountPercentage: 50,
   },
   {
     type: "TP",
@@ -27,6 +37,6 @@ const staticRules = [
   // ...other rules...
 ];
 
-const timer = 10; // seconds
+const timer = 6; // seconds
 
 module.exports = { staticRules, timer };
